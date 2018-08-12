@@ -21,6 +21,7 @@
 #include <chrono>
 #include <numeric>
 #include <cmath>
+#include <thread>
 
 #include "LSODA.h"
 #include "helper.h"
@@ -63,7 +64,6 @@ double test_github_system( void )
     LSODA lsoda;
 
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
-
     vector<double> yout;
     vector<double> res;
     for (size_t i = 0; i < 10; i++)
@@ -75,21 +75,12 @@ double test_github_system( void )
 
         y[0] = yout[1];
         y[1] = yout[2];
-
-        // cout << t << ' ' << setprecision(8) << y[0] << ' ' << y[1] << endl;
     }
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
 
-    assert( areEqual(-11.9400786, res[0]));
-    assert( areEqual( 3.8608262, res[1]));
-
-    if (istate <= 0)
-    {
-        cerr << "error istate = " <<  istate << endl;
-        exit(0);
-    }
-
+    if( !areEqual(-11.9400786, res[0])) cout << 'x';
+    if( !areEqual( 3.8608262, res[1])) cout << 'x';
     double dt = duration_cast<chrono::microseconds>(end-begin).count();
     return dt;
 }
@@ -112,8 +103,8 @@ double test_scipy_sys( void )
 
     // printf(" at t= %12.4e y= %14.6e %14.6e\n", t, yout[1], yout[2]);
 
-    assert( areEqual(9.999899e+00, yout[1]));
-    assert( areEqual(-1.010111e-05, yout[2]));
+    if( ! areEqual(9.999899e+00, yout[1])) cout << 'x';
+    if( !areEqual(-1.010111e-05, yout[2])) cout << 'x';
 
     if (istate <= 0)
     {
@@ -196,11 +187,14 @@ double test_fex(void)
     return dt;
 }
 
-int main(int argc, const char *argv[])
+int run_serial( )
 {
     vector<double> t1s, t2s, t3s;
     size_t N = 10000;
     cout << "Running " << N << " iterations. " << endl;
+
+    // Launch all three tests in parallel.
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now();
     for (size_t i = 0; i < N; i++)
     {
         double t1 = test_scipy_sys();
@@ -218,5 +212,44 @@ int main(int argc, const char *argv[])
     cout << "Avg time for 3 " << std::accumulate(t3s.begin(), t3s.end(), 0)/N
         << " us per loop."<< endl;
 
+    chrono::steady_clock::time_point end = chrono::steady_clock::now();
+    double dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    cout << "Total time taken " << dt/N << " us. (per loop)" << endl;
+
+
+    return 0;
+}
+
+int run_multithreaded( )
+{
+    vector<double> t1s, t2s, t3s;
+    size_t N = 10000;
+    cout << "Running " << N << " iterations. " << endl;
+
+    // Launch all three tests in parallel.
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now();
+    for (size_t i = 0; i < N; i++)
+    {
+        std::thread th1(test_scipy_sys);
+        std::thread th2(test_fex);
+        std::thread th3(test_github_system);
+        th1.join();
+        th2.join();
+        th3.join();
+    }
+
+    chrono::steady_clock::time_point end = chrono::steady_clock::now();
+    double dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    cout << "Total time taken " << dt / N << " us (per loop)." << endl;
+    return 0;
+}
+
+int main(int argc, const char *argv[])
+{
+    cout <<"|| running serial version" << endl;
+    run_serial();
+
+    cout <<"|| running multithreaded version" << endl;
+    run_multithreaded();
     return 0;
 }
