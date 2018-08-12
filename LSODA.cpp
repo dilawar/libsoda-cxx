@@ -350,46 +350,7 @@ void LSODA::daxpy(const size_t n, const double da, const double* const dx
 
 }
 
-/***********
- * dgesl.c *
- ***********/
-
-/*
-   Purpose : dgesl solves the linear system
-   a * x = b or Transpose(a) * x = b
-   using the factors computed by dgeco or degfa.
-
-
-   On Entry :
-
-      a    : double matrix of dimension ( n+1, n+1 ),
-             the output from dgeco or dgefa.
-             The 0-th row and column are not used.
-      n    : the row dimension of a.
-      ipvt : the pivot vector from degco or dgefa.
-      b    : the right hand side vector.
-      job  : = 0       to solve a * x = b,
-             = nonzero to solve Transpose(a) * x = b.
-
-
-   On Return :
-
-      b : the solution vector x.
-
-
-   Error Condition :
-
-      A division by zero will occur if the input factor contains
-      a zero on the diagonal.  Technically this indicates
-      singularity but it is often caused by improper argments or
-      improper setting of the pointers of a.  It will not occur
-      if the subroutines are called correctly and if dgeco has
-      set rcond > 0 or dgefa has set info = 0.
-
-
-   BLAS : daxpy, ddot
-*/
-
+// See BLAS documentation. The first argument has been changed to vector.
 void LSODA::dgesl( const vector<vector<double>>& a, const size_t n
         , vector<int>& ipvt
         , double* b, const size_t job
@@ -455,49 +416,7 @@ void LSODA::dgesl( const vector<vector<double>>& a, const size_t n
 
 }
 
-/***********
- * dgefa.c *
- ***********/
-/*
-   Purpose : dgefa factors a double matrix by Gaussian elimination.
-
-   dgefa is usually called by dgeco, but it can be called directly
-   with a saving in time if rcond is not needed.
-   (Time for dgeco) = (1+9/n)*(time for dgefa).
-
-   This c version uses algorithm kji rather than the kij in dgefa.f.
-   Note that the fortran version input variable lda is not needed.
-
-
-   On Entry :
-
-      a   : double matrix of dimension ( n+1, n+1 ),
-            the 0-th row and column are not used.
-            a is created using NewDoubleMatrix, hence
-            lda is unnecessary.
-      n   : the row dimension of a.
-
-   On Return :
-
-      a     : a lower triangular matrix and the multipliers
-              which were used to obtain it.  The factorization
-              can be written a = L * U where U is a product of
-              permutation and unit upper triangular matrices
-              and L is lower triangular.
-      ipvt  : an n+1 integer vector of pivot indices.
-      *info : = 0 normal value,
-              = k if U[k][k] == 0.  This is not an error
-                condition for this subroutine, but it does
-                indicate that dgesl or dgedi will divide by
-                zero if called.  Use rcond in dgeco for
-                a reliable indication of singularity.
-
-                Notice that the calling program must use &info.
-
-   BLAS : daxpy, dscal, idamax
-*/
-
-
+// See BLAS documentation. All double* has been changed to std::vector .
 void LSODA::dgefa( vector<vector<double>>& a, const size_t n, vector<int>& ipvt, size_t* const info)
 {
     size_t j=0, k=0, i=0;
@@ -557,33 +476,6 @@ void LSODA::dgefa( vector<vector<double>>& a, const size_t n, vector<int>& ipvt,
 
 }
 
-/***********
- * lsoda.c *
- ***********/
-
-/*
-From tam@dragonfly.wri.com Wed Apr 24 01:35:52 1991
-Return-Path: <tam>
-Date: Wed, 24 Apr 91 03:35:24 CDT
-From: tam@dragonfly.wri.com
-To: whitbeck@wheeler.wrc.unr.edu
-Subject: lsoda.c
-Cc: augenbau@sparc0.brc.uconn.edu
-
-
-I'm told by Steve Nichols at Georgia Tech that you are interested in
-a stiff integrator.  Here's a translation of the fortran code LSODA.
-
-Please note
-that there is no comment.  The interface is the same as the FORTRAN
-code and I believe the documentation in LSODA will suffice.
-As usual, a free software comes with no guarantee.
-
-Hon Wah Tam
-Wolfram Research, Inc.
-tam@wri.com
-*/
-
 #define ETA 2.2204460492503131e-16
 
 /* Terminate lsoda due to illegal input. */
@@ -631,30 +523,6 @@ void LSODA::successreturn( vector<double>& y, double *t, int itask, int ihit, do
 }
 
 /*
-c-----------------------------------------------------------------------
-c this is the march 30, 1987 version of
-c lsoda.. livermore solver for ordinary differential equations, with
-c         automatic method switching for stiff and nonstiff problems.
-c
-c this version is in double precision.
-c
-c lsoda solves the initial value problem for stiff or nonstiff
-c systems of first order ode-s,
-c     dy/dt = f(t,y) ,  or, in component form,
-c     dy(i)/dt = f(i) = f(i,t,y(1),y(2),...,y(neq)) (i = 1,...,neq).
-c
-c this a variant version of the lsode package.
-c it switches automatically between stiff and nonstiff methods.
-c this means that the user does not have to determine whether the
-c problem is stiff or not, and the solver will automatically choose the
-c appropriate method.  it always starts with the nonstiff method.
-c
-c authors..
-c                linda r. petzold  and  alan c. hindmarsh,
-c                computing and mathematics research division, l-316
-c                lawrence livermore national laboratory
-c                livermore, ca 94550.
-c
 c references..
 c 1.  alan c. hindmarsh,  odepack, a systematized collection of ode
 c     solvers, in scientific computing, r. s. stepleman et al. (eds.),
@@ -663,90 +531,7 @@ c 2.  linda r. petzold, automatic selection of methods for solving
 c     stiff and nonstiff systems of ordinary differential equations,
 c     siam j. sci. stat. comput. 4 (1983), pp. 136-148.
 c-----------------------------------------------------------------------
-c summary of usage.
-c
-c communication between the user and the lsoda package, for normal
-c situations, is summarized here.  this summary describes only a subset
-c of the full set of options available.  see the full description for
-c details, including alternative treatment of the jacobian matrix,
-c optional inputs and outputs, nonstandard options, and
-c instructions for special situations.  see also the example
-c problem (with program and output) following this summary.
-c
-c a. first provide a subroutine of the form..
-c               subroutine f (neq, t, y, ydot)
-c               dimension y(neq), ydot(neq)
-c which supplies the vector function f by loading ydot(i) with f(i).
-c
-c b. write a main program which calls subroutine lsoda once for
-c each point at which answers are desired.  this should also provide
-c for possible use of logical unit 6 for output of error messages
-c by lsoda.  on the first call to lsoda, supply arguments as follows..
-c f      = name of subroutine for right-hand side vector f.
-c          this name must be declared external in calling program.
-c neq    = number of first order ode-s.
-c y      = array of initial values, of length neq.
-c t      = the initial value of the independent variable.
-c tout   = first point where output is desired (.ne. t).
-c itol   = 1 or 2 according as atol (below) is a scalar or array.
-c rtol   = relative tolerance parameter (scalar).
-c atol   = absolute tolerance parameter (scalar or array).
-c          the estimated local error in y(i) will be controlled so as
-c          to be less than
-c             ewt(i) = rtol*abs(y(i)) + atol     if itol = 1, or
-c             ewt(i) = rtol*abs(y(i)) + atol(i)  if itol = 2.
-c          thus the local error test passes if, in each component,
-c          either the absolute error is less than atol (or atol(i)),
-c          or the relative error is less than rtol.
-c          use rtol = 0.0 for pure absolute error control, and
-c          use atol = 0.0 (or atol(i) = 0.0) for pure relative error
-c          control.  caution.. actual (global) errors may exceed these
-c          local tolerances, so choose them conservatively.
-c itask  = 1 for normal computation of output values of y at t = tout.
-c istate = integer flag (input and output).  set istate = 1.
-c iopt   = 0 to indicate no optional inputs used.
-c          see also paragraph e below.
-c lrw    = declared length of rwork (in user-s dimension).
-c liw    = declared length of iwork (in user-s dimension).
-c jac    = name of subroutine for jacobian matrix.
-c          use a dummy name.  see also paragraph e below.
-c jt     = jacobian type indicator.  set jt = 2.
-c          see also paragraph e below.
-c note that the main program must declare arrays y, rwork, iwork,
-c and possibly atol.
-c
-c c. the output from the first call (or any call) is..
-c      y = array of computed values of y(t) vector.
-c      t = corresponding value of independent variable (normally tout).
-c istate = 2  if lsoda was successful, negative otherwise.
-c          -1 means excess work done on this call (perhaps wrong jt).
-c          -2 means excess accuracy requested (tolerances too small).
-c          -3 means illegal input detected (see printed message).
-c          -4 means repeated error test failures (check all inputs).
-c          -5 means repeated convergence failures (perhaps bad jacobian
-c             supplied or wrong choice of jt or tolerances).
-c          -6 means error weight became zero during problem. (solution
-c             component i vanished, and atol or atol(i) = 0.)
-c          -7 means work space insufficient to finish (see messages).
-c
-c d. to continue the integration after a successful return, simply
-c reset tout and call lsoda again.  no other parameters need be reset.
-c
-c e. note.. if and when lsoda regards the problem as stiff, and
-c switches methods accordingly, it must make use of the neq by neq
-c jacobian matrix, j = df/dy.  for the sake of simplicity, the
-c inputs to lsoda recommended in paragraph b above cause lsoda to
-c treat j as a full matrix, and to approximate it internally by
-c difference quotients.  alternatively, j can be treated as a band
-c matrix (with great potential reduction in the size of the rwork
-c array).  also, in either the full or banded case, the user can supply
-c j in closed form, with a routine whose name is passed as the jac
-c argument.  these alternatives are described in the paragraphs on
-c rwork, jac, and jt in the full description of the call sequence below.
-c
-c-----------------------------------------------------------------------
 */
-
 void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
        , vector<double>& y, double *t, double tout
        , int itask, int *istate, int iopt, int jt
@@ -856,10 +641,9 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 return;
             }
         }
+
         /* Next process and check the optional inpus.   */
-
         /* Default options.   */
-
         if (iopt == 0)
         {
             ixpr = 0;
@@ -988,9 +772,8 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
             }
         }		/* end for   */
     }			/* end if ( *istate == 1 || *istate == 3 )   */
-    /*
-       If *istate = 3, set flag to signal parameter changes to stoda.
-    */
+
+    /* If *istate = 3, set flag to signal parameter changes to stoda. */
     if (*istate == 3)
     {
         jstart = -1;
@@ -1237,10 +1020,8 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
        start of problem).  Check for too much accuracy being requested, and
        check for h_ below the roundoff level in *t.
     */
-    size_t __i = 0;
     while(1)
     {
-        __i += 1;
         if (*istate != 1 || nst != 0)
         {
             if ((nst - nslast) >= mxstep)
@@ -2007,16 +1788,14 @@ void LSODA::cfode(int meth_)
         }		/* end for   */
         return;
     }			/* end if ( meth_ == 1 )   */
-    /*
-       meth_ = 2.
-    */
+
+    /* meth_ = 2. */
     pc[1] = 1.;
     rq1fac = 1.;
+
     /*
        The pc array will contain the coefficients of the polynomial
-
           p(x) = (x+1)*(x+2)*...*(x+nq).
-
        Initially, p(x) = 1.
     */
     for (nq = 1; nq <= 5; nq++)
@@ -2473,6 +2252,7 @@ void LSODA::methodswitch(double dsm, double pnorm, double *pdh, double *rh)
         l = nq + 1;
         return;
     }			/* end if ( meth_ == 1 )   */
+
     /*
        We are currently using a bdf method, considering switching to Adams.
        Compute the step size we could have (ideally) used on this step,
@@ -2522,7 +2302,6 @@ void LSODA::methodswitch(double dsm, double pnorm, double *pdh, double *rh)
     pdlast = 0.;
     nq = nqm1;
     l = nq + 1;
-
 }				/* end methodswitch   */
 
 
