@@ -22,3 +22,4 @@ set_target_properties(benchmark_lsoda PROPERTIES COMPILE_FLAGS "-O3" )
 
 enable_testing()
 add_test(NAME test_lsoda COMMAND $<TARGET_FILE:test_lsoda>)
+add_test(NAME test_benchmark COMMAND $<TARGET_FILE:benchmark_lsoda>)
