@@ -7,6 +7,7 @@ branches:
 compiler:
     - clang
     - gcc
+
 matrix:
     # works on Precise and Trusty
     - os: linux
