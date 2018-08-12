@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/dilawar/lsoda_cpp.svg?branch=master)](https://travis-ci.org/dilawar/lsoda_cpp)
 
-# LSODA library
+## libsoda++
 
 This is `c++11` version of LSODA library. This is still beta. Please do not use it in
 serious application. We are using it our simulator (https://moose.ncbs.res.in) with 
