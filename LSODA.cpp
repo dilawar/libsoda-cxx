@@ -705,11 +705,8 @@ c          local tolerances, so choose them conservatively.
 c itask  = 1 for normal computation of output values of y at t = tout.
 c istate = integer flag (input and output).  set istate = 1.
 c iopt   = 0 to indicate no optional inputs used.
-c rwork  = real work array of length at least..
-c             22 + neq * max(16, neq + 9).
 c          see also paragraph e below.
 c lrw    = declared length of rwork (in user-s dimension).
-c iwork  = integer work array of length at least  20 + neq.
 c liw    = declared length of iwork (in user-s dimension).
 c jac    = name of subroutine for jacobian matrix.
 c          use a dummy name.  see also paragraph e below.
@@ -753,8 +750,7 @@ c-----------------------------------------------------------------------
 void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
        , vector<double>& y, double *t, double tout
        , int itask, int *istate, int iopt, int jt
-       , int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, int iwork8, int iwork9
-       , double rwork1, double rwork5, double rwork6, double rwork7
+       , array<int,7>& iworks, array<double,4>& rworks
        , void *_data
     )
 {
@@ -845,8 +841,8 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         jtyp = jt;
         if (jt > 2)
         {
-            ml = iwork1;
-            mu = iwork2;
+            ml = iworks[0];
+            mu = iworks[1];
             if (ml >= n)
             {
                 cerr << "[lsoda] ml = " << ml << " not between 1 and neq" << endl;
@@ -882,7 +878,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         /* Optional inputs.   */
         else  		/* if ( iopt = 1 )  */
         {
-            ixpr = iwork5;
+            ixpr = iworks[2];
             if ( ixpr > 1)
             {
                 cerr << "[lsoda] ixpr = " << ixpr << " is illegal" << endl;
@@ -890,20 +886,21 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 return;
             }
 
-            mxstep = iwork6;
+            mxstep = iworks[3];
             if (mxstep == 0) 
                 mxstep = mxstp0;
-            mxhnil = iwork7;
+            mxhnil = iworks[4];
 
             if (*istate == 1)
             {
-                h0 = rwork5;
-                mxordn = iwork8;
+                h0 = rworks[1];
+                mxordn = iworks[5];
 
-                if (mxordn == 0) mxordn = 100;
+                if (mxordn == 0) 
+                    mxordn = 100;
 
                 mxordn = min(mxordn, mord[1]);
-                mxords = iwork9;
+                mxords = iworks[6];
 
                 // if mxords is not given use 100.
                 if (mxords == 0) 
@@ -919,7 +916,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                     return;
                 }
             }	/* end if ( *istate == 1 )  */
-            hmax = rwork6;
+            hmax = rworks[2];
             if (hmax < 0.)
             {
                 cerr << "[lsoda] hmax < 0." << endl;
@@ -929,7 +926,8 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
             hmxi = 0.;
             if (hmax > 0)
                 hmxi = 1. / hmax;
-            hmin = rwork7;
+
+            hmin = rworks[3];
             if (hmin < 0.)
             {
                 cerr << "[lsoda] hmin < 0." << endl;
@@ -1011,7 +1009,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         maxord = mxordn;
         if (itask == 4 || itask == 5)
         {
-            tcrit = rwork1;
+            tcrit = rworks[0];
             if ((tcrit - tout) * (tout - *t) < 0.)
             {
                 fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tout\n");
@@ -1173,7 +1171,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
             successreturn(y, t, itask, ihit, tcrit, istate);
             return;
         case 4:
-            tcrit = rwork1;
+            tcrit = rworks[0];
             if ((tn_ - tcrit) * h_ > 0.)
             {
                 fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
@@ -1203,7 +1201,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         case 5:
             if (itask == 5)
             {
-                tcrit = rwork1;
+                tcrit = rworks[0];
                 if ((tn_ - tcrit) * h_ > 0.)
                 {
                     fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
@@ -2713,12 +2711,11 @@ void LSODA::lsoda_update( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         , double rtol, double atol
         )
 {
-    double rwork1, rwork5, rwork6, rwork7;
-    int    iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9;
-    int    itask, iopt, jt;
+    array<int, 7> iworks = {{0}};
+    array<double, 4> rworks = {{0.0}};
 
-    iwork1 = iwork2 = iwork5 = iwork6 = iwork7 = iwork8 = iwork9 = 0;
-    rwork1 = rwork5 = rwork6 = rwork7 = 0.0;
+    int itask, iopt, jt;
+
     itask = 1;
     iopt = 0;
     jt = 2;
@@ -2737,8 +2734,7 @@ void LSODA::lsoda_update( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
 
     lsoda(f, neq, yout, t, tout
           , itask, istate, iopt, jt
-          , iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9
-          , rwork1, rwork5, rwork6, rwork7
+          , iworks, rworks
           , _data
          );
 

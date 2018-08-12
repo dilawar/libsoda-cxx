@@ -72,8 +72,7 @@ public:
     void lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 , vector<double>& y, double *t, double tout
                 , int itask, int *istate, int iopt, int jt
-                , int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, int iwork8, int iwork9
-                , double rwork1, double rwork5, double rwork6, double rwork7
+                , array<int, 7>& iworks, array<double, 4>& rworks
                 , void *_data
               );
 
