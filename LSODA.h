@@ -116,7 +116,8 @@ private:
     int      g_nyh = 0, g_lenyh = 0;
 
     size_t   ml, mu, imxer;
-    double   sqrteta,  *yp1, *yp2;
+    double   sqrteta;
+    vector<double> yp1, yp2;
 
     // NOTE: initialize in default constructor. Older compiler e.g. 4.8.4 would
     // produce error if these are initialized here. With newer compiler,
