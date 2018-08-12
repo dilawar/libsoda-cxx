@@ -58,7 +58,7 @@ double test_github_system( void )
     // cout << "Running test given https://github.com/sdwfrost/liblsoda/issues/10" << endl;
     double t = 0e0, tout = 0.5;
 
-    array<double, 2> y = {4.0/3.0, 2.0/3.0};
+    vector<double> y = {4.0/3.0, 2.0/3.0};
     int istate = 1;
 
     LSODA lsoda;
@@ -68,7 +68,7 @@ double test_github_system( void )
     vector<double> res;
     for (size_t i = 0; i < 10; i++)
     {
-        lsoda.lsoda_update( system_github_issue_10, 2, &y[0], yout, &t, tout, &istate, nullptr );
+        lsoda.lsoda_update( system_github_issue_10, 2, y, yout, &t, tout, &istate, nullptr );
         res.push_back( yout[1] );
         res.push_back( yout[2] );
         tout += 0.5;
@@ -91,14 +91,14 @@ double test_scipy_sys( void )
     double t, tout;
     t = 0e0; tout = 10;
 
-    array<double, 2> y = {10,0};
+    vector<double> y = {10,0};
     int istate = 1;
 
     LSODA lsoda;
 
     vector<double> yout;
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
-    lsoda.lsoda_update( system_scipy, 2, &y[0], yout, &t, tout, &istate, nullptr );
+    lsoda.lsoda_update( system_scipy, 2, y, yout, &t, tout, &istate, nullptr );
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
 
     // printf(" at t= %12.4e y= %14.6e %14.6e\n", t, yout[1], yout[2]);
@@ -120,12 +120,11 @@ double test_fex(void)
 {
     // cout << "Running test fex." << endl;
     int neq = 3;
-    double t, tout, y[4];
+    double t, tout;
     t = 0e0;
     tout = 0.4e0;
-    y[0] = 1e0;
-    y[1] = 0e0;
-    y[2] = 0.0;
+
+    vector<double> y = { 1e0,  0e0, 0.0 };
     int istate = 1;
 
     LSODA lsoda;
