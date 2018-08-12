@@ -21,7 +21,9 @@ add_executable( benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/benchmark_LSODA.cpp)
 target_link_libraries( benchmark_lsoda lsoda )
 
 set_target_properties(test_lsoda PROPERTIES COMPILE_FLAGS "-g -UNDEBUG" )
-set_target_properties(benchmark_lsoda PROPERTIES COMPILE_FLAGS "-O3" ) 
+set_target_properties(benchmark_lsoda 
+    PROPERTIES COMPILE_FLAGS "-O3" LINK_FLAGS "-pthread"
+    ) 
 target_link_libraries(benchmark_lsoda ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
