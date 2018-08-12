@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_BUILD_TYPE Release)
-add_definitions( -std=c++11 )
+add_definitions( -std=c++11 -Wall -Werror )
 
 add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
 

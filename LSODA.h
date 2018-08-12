@@ -69,7 +69,7 @@ public:
 
     void prja(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, void *_data);
 
-    void lsoda( LSODA_ODE_SYSTEM_TYPE f, int neq
+    void lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 , vector<double>& y, double *t, double tout
                 , int itask, int *istate, int iopt, int jt
                 , int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, int iwork8, int iwork9
@@ -115,13 +115,13 @@ public:
 private:
     int      g_nyh = 0, g_lenyh = 0;
 
-    int      ml, mu, imxer;
+    size_t   ml, mu, imxer;
     double   sqrteta,  *yp1, *yp2;
 
     // NOTE: initialize in default constructor. Older compiler e.g. 4.8.4 would
     // produce error if these are initialized here. With newer compiler,
     // initialization can be done here.
-    array<int,3> mord;
+    array<size_t,3> mord;
     array<double, 13>  sm1;
 
     array<double, 14> el; // = {0};
@@ -131,18 +131,24 @@ private:
     array<array<double, 14>, 13> elco;
     array<array<double,4>, 13> tesco;
 
-    int      illin = 0, init = 0, mxstep, mxhnil, nhnil, ntrep = 0, nslast, nyh, ierpj, iersl,
-             jcur, jstart, kflag, l, meth, miter, maxord, maxcor, msbp, mxncf, n, nq, nst,
-             nfe, nje, nqu;
-    int      ixpr = 0, jtyp, mused, mxordn, mxords = 12;
+    size_t  illin, init, ierpj, iersl, jcur, l, meth, miter, maxord, maxcor, msbp, mxncf;
+
+    int      kflag, jstart, k;
+
+    size_t   ixpr = 0, jtyp, mused, mxordn, mxords = 12;
+
+    size_t   n, nq, nst, nfe, nje, nqu;
+    size_t   mxstep, mxhnil;
+    size_t   nslast, nhnil, ntrep, nyh;
 
     double   ccmax, el0, h, hmin, hmxi, hu, rc, tn;
     double   tsw, pdnorm;
     double   conit, crate, hold, rmax;
 
-    int      ialth, ipup, lmax, nslp;
+    size_t   ialth, ipup, lmax;
+    size_t   nslp;
     double   pdest, pdlast, ratio;
-    int      icount, irflag;
+    size_t   icount, irflag;
 
     vector<double> ewt;
     vector<double> savf;
