@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
-add_definitions( -std=c++11 )
-add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
 
+add_definitions( -std=c++11 )
+
+set(CMAKE_BUILD_TYPE Release)
+add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-    set_target_properties( ksolve lsoda PROPERTIES COMPILE_FLAGS "-Werror -Wall")
+    message( STATUS "Building for release" )
+    set_target_properties( lsoda PROPERTIES COMPILE_FLAGS "-Werror -Wall")
+else()
+    message( STATUS "Building for DEBUG mode" )
 endif()
 
 add_executable( test_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/test_LSODA.cpp)
