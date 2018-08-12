@@ -494,10 +494,10 @@ void LSODA::dgesl(double** const a, const size_t n, const int* const ipvt
 */
 
 
-void LSODA::dgefa(double** const a, const size_t n, int* const ipvt, int* const info)
+void LSODA::dgefa(double** const a, const size_t n, int* const ipvt, size_t* const info)
 {
-    size_t j, k, i;
-    double t;
+    size_t j=0, k=0, i=0;
+    double t=0.0;
 
     /* Gaussian elimination with partial pivoting.   */
 
@@ -2194,10 +2194,10 @@ void LSODA::scaleh(double *rh, double *pdh)
 }				/* end scaleh   */
 
 
-void LSODA::prja(int neq, double *y, LSODA_ODE_SYSTEM_TYPE f, void *_data)
+void LSODA::prja(const size_t neq, double * const y, LSODA_ODE_SYSTEM_TYPE f, void *_data)
 {
-    int             i, ier, j;
-    double          fac, hl0, r, r0, yj;
+    size_t i=0, ier=0, j=0;
+    double fac=0.0, hl0=0.0, r=0.0, r0=0.0, yj=0.0;
     /*
        prja is called by stoda to compute and process the matrix
        P = I - h * el[1] * J, where J is an approximation to the Jacobian.
@@ -2311,13 +2311,13 @@ double LSODA::fnorm(int n, double **a, double *w)
 1 : step size to be reduced, redo prediction,
 2 : corrector cannot converge, failure flag.
 */
-void LSODA::correction(int neq, double* const y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
-                       , double pnorm, double *del, double *delp, double *told
-                       , int *ncf, double *rh, int *m, void *_data
-                      )
+void LSODA::correction(const size_t neq, double* const y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
+        , double pnorm, double *del, double *delp, double *told
+        , int *ncf, double *rh, int *m, void *_data
+        )
 {
-    int             i;
-    double          rm, rate, dcon;
+    size_t i=0;
+    double rm=0.0, rate=0.0, dcon=0.0;
 
     /*
        Up to maxcor corrector iterations are taken.  A convergence test is
@@ -2328,7 +2328,6 @@ void LSODA::correction(int neq, double* const y, LSODA_ODE_SYSTEM_TYPE f, int *c
 
     *m = 0;
     *corflag = 0;
-    rate = 0.;
     *del = 0.;
     yp1 = yh[1];
 

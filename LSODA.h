@@ -65,9 +65,9 @@ public:
             , const size_t job
             );
 
-    void dgefa(double** const a, const size_t n, int* const ipvt, int* const info);
+    void dgefa(double** const a, const size_t n, int* const ipvt, size_t* const info);
 
-    void prja(int neq, double *y, LSODA_ODE_SYSTEM_TYPE f, void *_data);
+    void prja(const size_t neq, double* const y, LSODA_ODE_SYSTEM_TYPE f, void *_data);
 
     int n_lsoda(double y[], int n, double *x, double xout, double eps
             , const double yscal[], LSODA_ODE_SYSTEM_TYPE devis, void *data
@@ -81,7 +81,7 @@ public:
                 , void *_data
               );
 
-    void correction( int neq, double* const y
+    void correction( const size_t neq, double* const y
             , LSODA_ODE_SYSTEM_TYPE f, int *corflag
             , double pnorm, double *del, double *delp, double *told
             , int *ncf, double *rh, int *m, void *_data
