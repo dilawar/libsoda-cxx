@@ -2,11 +2,7 @@
 
 ## libsoda++
 
-This is `c++11` version of LSODA library. This is still beta. Please do not use it in
-serious application. We are using it our simulator (https://moose.ncbs.res.in) with 
-good performance.
-
-See the `./test_LSODA.cpp` file for example.
+This is `c++11` version of LSODA library. See the `./test_LSODA.cpp` file for example.
 
 ## CREDIT 
 
