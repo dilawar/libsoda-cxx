@@ -6,7 +6,9 @@ This is `c++11` version of LSODA library. This is still beta. Please do not use 
 serious application. We are using it our simulator (https://moose.ncbs.res.in) with 
 good performance.
 
-# CREDIT 
+See the `./test_LSODA.cpp` file for example.
+
+## CREDIT 
 
 This work is based on http://lh3lh3.users.sourceforge.net/download/lsoda.c . 
 
