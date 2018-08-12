@@ -12,9 +12,8 @@ target_link_libraries( test_lsoda lsoda )
 add_executable( benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/benchmark_LSODA.cpp)
 target_link_libraries( benchmark_lsoda lsoda )
 
-set_target_properties(test_lsoda benchmark_lsoda 
-    PROPERTIES COMPILE_FLAGS "-g -UNDEBUG" 
-    )
+set_target_properties(test_lsoda PROPERTIES COMPILE_FLAGS "-g -UNDEBUG" )
+set_target_properties(benchmark_lsoda PROPERTIES COMPILE_FLAGS "-O3" ) 
 
 enable_testing()
 add_test(NAME test_lsoda COMMAND $<TARGET_FILE:test_lsoda>)
