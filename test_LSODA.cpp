@@ -186,6 +186,8 @@ int main(int argc, const char *argv[])
     chrono::steady_clock::time_point end= chrono::steady_clock::now();
     cout << "|| Time taken (us)= " << chrono::duration_cast<chrono::microseconds>(end - begin).count() <<endl;
 
+#if 0
+
     begin = chrono::steady_clock::now();
     test_fex();
     end = chrono::steady_clock::now();
@@ -198,6 +200,7 @@ int main(int argc, const char *argv[])
     cout << "|| Time taken (us)="
         << chrono::duration_cast<chrono::nanoseconds> (end - begin).count()/1000
         <<endl;
+#endif
 
     return 0;
 }

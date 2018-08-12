@@ -1,5 +1,5 @@
 /***
- *       Filename:  LSODE.h
+ *       Filename:  LSODE.h_
  *
  *    Description:  See LSODE.cpp file to more information.
  *
@@ -38,7 +38,7 @@ using namespace std;
  * @Returns void
  */
 /* ----------------------------------------------------------------------------*/
-typedef void  (*LSODA_ODE_SYSTEM_TYPE) (double t, double* y, double * dydt, void *);
+typedef void  (*LSODA_ODE_SYSTEM_TYPE) (double t, double* y, double* dydt, void *);
 
 
 class LSODA
@@ -99,7 +99,7 @@ public:
     void     terminate2( vector<double>& y, double *t);
     void     successreturn( vector<double>& y, double *t, int itask, int ihit, double tcrit, int *istate);
     void     _freevectors(void);
-    void     ewset(vector<double>& ycur);
+    void     ewset( const vector<double>& ycur);
     void     resetcoeff(void);
     void     solsy(double *y);
     void     endstoda(void);
@@ -107,7 +107,7 @@ public:
     void     intdy(double t, int k, vector<double>& dky, int *iflag);
     void     corfailure(double *told, double *rh, size_t *ncf, size_t *corflag);
     void     methodswitch(double dsm, double pnorm, double *pdh, double *rh);
-    void     cfode(int meth);
+    void     cfode(int meth_);
     void     scaleh(double *rh, double *pdh);
     double   fnorm(int n, const vector<vector<double>>& a, const vector<double>& w);
     double   vmnorm(const size_t n, const vector<double>& v, const vector<double>& w);
@@ -131,30 +131,32 @@ private:
     array<array<double, 14>, 13> elco;
     array<array<double,4>, 13> tesco;
 
-    size_t  illin, init, ierpj, iersl, jcur, l, meth, miter, maxord, maxcor, msbp, mxncf;
+    size_t  illin, init, ierpj, iersl, jcur, l, miter, maxord, maxcor, msbp, mxncf;
 
     int      kflag, jstart, k;
 
     size_t   ixpr = 0, jtyp, mused, mxordn, mxords = 12;
+    size_t  meth_;
 
     size_t   n, nq, nst, nfe, nje, nqu;
     size_t   mxstep, mxhnil;
     size_t   nslast, nhnil, ntrep, nyh;
 
-    double   ccmax, el0, h, hmin, hmxi, hu, rc, tn;
+    double   ccmax, el0, h_=.0;
+    double   hmin, hmxi, hu, rc, tn_=0.0;
     double   tsw, pdnorm;
     double   conit, crate, hold, rmax;
 
     size_t   ialth, ipup, lmax;
     size_t   nslp;
     double   pdest, pdlast, ratio;
-    size_t   icount, irflag;
+    int      icount, irflag;
 
     vector<double> ewt;
     vector<double> savf;
     vector<double> acor;
-    vector<vector<double>> yh;
-    vector<vector<double>> wm;
+    vector<vector<double>> yh_;
+    vector<vector<double>> wm_;
 
     vector<int> ipvt;
 
