@@ -4,5 +4,4 @@ compiler:
 - gcc
 script: 
 - cmake . && make && ctest --output-on-failure
-- ./benchmark_lsoda
 
