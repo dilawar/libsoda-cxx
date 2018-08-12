@@ -1,7 +1,12 @@
 language: cpp
+branches:
+    only:
+        - master
+        - devel
+
 compiler:
-- clang
-- gcc
+    - clang
+    - gcc
 matrix:
     # works on Precise and Trusty
     - os: linux
@@ -15,5 +20,5 @@ matrix:
                   - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
 script: 
-- cmake . && make && ctest --output-on-failure
+    - cmake . && make && ctest --output-on-failure
 
