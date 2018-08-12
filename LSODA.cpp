@@ -33,9 +33,9 @@ LSODA::LSODA( )
     // Initialize arrays.
     mord = {{0, 12, 5}};
     sm1 = {{0., 0.5, 0.575, 0.55, 0.45, 0.35, 0.25, 0.2, 0.15, 0.1, 0.075, 0.05, 0.025 }};
-    el = {0};
-    cm1 = {0};
-    cm2 = {0};
+    el = {{0}};
+    cm1 = {{0}};
+    cm2 = {{0}};
 }
 
 LSODA::~LSODA()
@@ -195,8 +195,8 @@ void LSODA::dscal(const size_t n, const double da, double* dx, const size_t incx
 
 */
 
-double LSODA::ddot(const size_t n, const double* const dx, const size_t incx
-        , const double* const dy, const size_t incy
+double LSODA::ddot(const size_t n, const double* const dx, const int incx
+        , const double* const dy, const int incy
     )
 {
     double          dotprod;
@@ -293,12 +293,12 @@ To: whitbeck@sanjuan.wrc.unr.edu
 */
 
 void LSODA::daxpy(const size_t n, const double da, const double* const dx
-        , const size_t incx, double* dy, const size_t incy
+        , const int incx, double* dy, const int incy
         )
 {
     size_t             ix, iy, i, m;
 
-    if (n < 0 || da == 0.)
+    if ( da == 0.)
         return;
 
     /* Code for nonequal or nonpositive increments.  */
@@ -847,13 +847,13 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         {
             ml = iwork1;
             mu = iwork2;
-            if (ml < 0 || ml >= n)
+            if (ml >= n)
             {
                 cerr << "[lsoda] ml = " << ml << " not between 1 and neq" << endl;
                 terminate(istate);
                 return;
             }
-            if (mu < 0 || mu >= n)
+            if ( mu >= n)
             {
                 cerr <<  "[lsoda] mu = " << mu << " not between 1 and neq" << endl;
                 terminate(istate);
@@ -883,49 +883,27 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         else  		/* if ( iopt = 1 )  */
         {
             ixpr = iwork5;
-            if (ixpr < 0 || ixpr > 1)
+            if ( ixpr > 1)
             {
                 cerr << "[lsoda] ixpr = " << ixpr << " is illegal" << endl;
                 terminate(istate);
                 return;
             }
-            mxstep = iwork6;
-            if (mxstep < 0)
-            {
-                cerr <<  "[lsoda] mxstep < 0" << endl;
-                terminate(istate);
-                return;
-            }
 
+            mxstep = iwork6;
             if (mxstep == 0) 
                 mxstep = mxstp0;
-
             mxhnil = iwork7;
-            if (mxhnil < 0)
-            {
-                cerr << "[lsoda] mxhnil < 0" << endl;
-                terminate(istate);
-                return;
-            }
+
             if (*istate == 1)
             {
                 h0 = rwork5;
                 mxordn = iwork8;
-                if (mxordn < 0)
-                {
-                    cerr << "[lsoda] mxordn = " << mxordn << " is less than 0" << endl;
-                    terminate(istate);
-                    return;
-                }
+
                 if (mxordn == 0) mxordn = 100;
+
                 mxordn = min(mxordn, mord[1]);
                 mxords = iwork9;
-                if (mxords < 0)
-                {
-                    cerr << "[lsoda] mxords = " << mxords << " is less than 0" << endl;
-                    terminate(istate);
-                    return;
-                }
 
                 // if mxords is not given use 100.
                 if (mxords == 0) 

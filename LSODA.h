@@ -53,12 +53,12 @@ public:
 
     void dscal(const size_t n, const double da, double* dx, const size_t incx);
 
-    double ddot(const size_t n, const double* const dx, const size_t ncx
-            , const double* const dy, const size_t incy
+    double ddot(const size_t n, const double* const dx, const int ncx
+            , const double* const dy, const int incy
             );
 
     void daxpy(const size_t n, const double da, const double* const dx
-            , const size_t incx, double* dy, const size_t incy
+            , const int incx, double* dy, const int incy
             );
 
     void dgesl( const vector<vector<double>>& a, const size_t n, vector<int>& ipvt, double* b
@@ -113,7 +113,6 @@ public:
     double   vmnorm(const size_t n, const vector<double>& v, const vector<double>& w);
 
 private:
-    int      g_nyh = 0, g_lenyh = 0;
 
     size_t   ml, mu, imxer;
     double   sqrteta;
@@ -133,7 +132,7 @@ private:
 
     size_t  illin, init, ierpj, iersl, jcur, l, miter, maxord, maxcor, msbp, mxncf;
 
-    int      kflag, jstart, k;
+    int      kflag, jstart;
 
     size_t   ixpr = 0, jtyp, mused, mxordn, mxords = 12;
     size_t  meth_;
@@ -162,7 +161,6 @@ private:
 
 private:
     int itol_ = 2;
-    int istate_ = 1;
     std::vector<double> rtol_;
     std::vector<double> atol_;
 
