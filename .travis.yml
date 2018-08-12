@@ -2,4 +2,7 @@ language: cpp
 compiler:
 - clang
 - gcc
-script: cmake
+script: 
+- cmake . && make && ctest --output-on-failure
+- -./benchmark_lsoda
+
