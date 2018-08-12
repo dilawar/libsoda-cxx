@@ -1062,7 +1062,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         assert( yh_.size() == lenyh + 1 );
         assert( yh_[0].size() == nyh + 1 );
 
-        (*f) (*t, y.data()+1, yh_[2].data()+1, _data);
+        (*f) (*t, &y[1], &yh_[2][1], _data);
         nfe = 1;
 
         /* Load the initial value vector in yh_.  */
@@ -1823,7 +1823,7 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
                     h_ *= rh;
                     for (i = 1; i <= n; i++)
                         y[i] = yh_[1][i];
-                    (*f) (tn_, y.data()+1, savf.data()+1, _data);
+                    (*f) (tn_, &y[1], &savf[1], _data);
                     nfe++;
                     for (i = 1; i <= n; i++)
                         yh_[2][i] = h_ * savf[i];
@@ -2148,7 +2148,7 @@ void LSODA::prja(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, v
             r = max(sqrteta * fabs(yj), r0 / ewt[j]);
             y[j] += r;
             fac = -hl0 / r;
-            (*f) (tn_, y.data()+1, acor.data()+1, _data);
+            (*f) (tn_, &y[1], &acor[1], _data);
             for (i = 1; i <= n; i++)
                 wm_[i][j] = (acor[i] - savf[i]) * fac;
             y[j] = yj;
@@ -2240,7 +2240,7 @@ void LSODA::correction(const size_t neq, vector<double>& y
     for (size_t i = 1; i <= n; i++)
         y[i] = yh_[1][i];
 
-    (*f) (tn_, y.data()+1, savf.data()+1, _data);
+    (*f) (tn_, &y[1], &savf[1], _data);
 
     nfe++;
     /*
@@ -2364,7 +2364,7 @@ void LSODA::correction(const size_t neq, vector<double>& y
             for (size_t i = 1; i <= n; i++)
                 y[i] = yh_[1][i];
 
-            (*f) (tn_, y.data()+1, savf.data()+1, _data);
+            (*f) (tn_, &y[1], &savf[1], _data);
 
             nfe++;
         }
@@ -2374,7 +2374,7 @@ void LSODA::correction(const size_t neq, vector<double>& y
         else
         {
             *delp = *del;
-            (*f) (tn_, y.data()+1, savf.data()+1, _data);
+            (*f) (tn_, &y[1], &savf[1], _data);
             nfe++;
         }
     }			/* end while   */
