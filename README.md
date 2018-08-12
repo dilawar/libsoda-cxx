@@ -2,8 +2,11 @@
 
 # LSODA library
 
-This is `c++11` of LSODA library. This is still alpha. Please do not use it in
-serious application. 
+This is `c++11` version of LSODA library. This is still beta. Please do not use it in
+serious application. We are using it our simulator (https://moose.ncbs.res.in) with 
+good performance.
+
+# CREDIT 
 
 This work is based on http://lh3lh3.users.sourceforge.net/download/lsoda.c . 
 
