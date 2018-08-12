@@ -10,37 +10,12 @@
  * [here](http://lh3lh3.users.sourceforge.net/download/lsoda.c)
 
  * The original source code came with no license or copyright
- * information. Heng Li released his modification under the MIT/X11 license. All
- * authors' notes are kept in this file.
+ * information. Heng Li released his modification under the MIT/X11 license. I
+ * maintain the same license. I have removed quite a lot of text/comments from
+ * this library. Please refer to the standard documentation. 
+ *
+ * Contact: Dilawar Singh <dilawars@ncbs.res.in> 
 */
-
-/* The MIT License
-
-   Copyright (c) 2009 Genome Research Ltd (GRL).
-   Copyright (c) 2018 Dilawar Singh <dilawars@ncbs.res.in>
-
-   Permission is hereby granted, free of charge, to any person obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so, subject to
-   the following conditions:
-
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-   BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-   ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-*/
-
-/* Contact: Dilawar Singh <dilawars@ncbs.res.in> */
 
 #include "LSODA.h"
 #include <cmath>
@@ -77,7 +52,6 @@ LSODA::~LSODA()
 
    Find smallest index of maximum magnitude of dx.
    idamax = first i, i=1 to n, to minimize fabs( dx[1-incx+i*incx] ).
-
 */
 int LSODA::idamax( const size_t n, const double* const dx, const size_t incx)
 {
@@ -2337,7 +2311,7 @@ double LSODA::fnorm(int n, double **a, double *w)
 1 : step size to be reduced, redo prediction,
 2 : corrector cannot converge, failure flag.
 */
-void LSODA::correction(int neq, double *y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
+void LSODA::correction(int neq, double* const y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
                        , double pnorm, double *del, double *delp, double *told
                        , int *ncf, double *rh, int *m, void *_data
                       )
@@ -2357,9 +2331,12 @@ void LSODA::correction(int neq, double *y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
     rate = 0.;
     *del = 0.;
     yp1 = yh[1];
+
     for (i = 1; i <= n; i++)
         y[i] = yp1[i];
+
     (*f) (tn, y + 1, savf + 1, _data);
+
     nfe++;
     /*
        If indicated, the matrix P = I - h * el[1] * J is reevaluated and

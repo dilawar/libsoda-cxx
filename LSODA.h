@@ -81,7 +81,8 @@ public:
                 , void *_data
               );
 
-    void correction( int neq, double *y, LSODA_ODE_SYSTEM_TYPE f, int *corflag
+    void correction( int neq, double* const y
+            , LSODA_ODE_SYSTEM_TYPE f, int *corflag
             , double pnorm, double *del, double *delp, double *told
             , int *ncf, double *rh, int *m, void *_data
             );
