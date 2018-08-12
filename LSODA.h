@@ -61,11 +61,11 @@ public:
             , const size_t incx, double* dy, const size_t incy
             );
 
-    void dgesl( const vector<vector<double>>& a, const size_t n, const int* const ipvt, double* b
+    void dgesl( const vector<vector<double>>& a, const size_t n, vector<int>& ipvt, double* b
             , const size_t job
             );
 
-    void dgefa( vector<vector<double>>& a, const size_t n, int* const ipvt, size_t* const info);
+    void dgefa( vector<vector<double>>& a, const size_t n, vector<int>& ipvt, size_t* const info);
 
     void prja(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, void *_data);
 
@@ -117,7 +117,6 @@ private:
 
     size_t   ml, mu, imxer;
     double   sqrteta;
-    vector<double> yp1, yp2;
 
     // NOTE: initialize in default constructor. Older compiler e.g. 4.8.4 would
     // produce error if these are initialized here. With newer compiler,
@@ -157,7 +156,7 @@ private:
     vector<vector<double>> yh;
     vector<vector<double>> wm;
 
-    int     *ipvt;
+    vector<int> ipvt;
 
 private:
     int itol_ = 2;

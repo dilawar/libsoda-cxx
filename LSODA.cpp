@@ -56,8 +56,8 @@ LSODA::~LSODA()
 */
 int LSODA::idamax( const size_t n, const double* const dx, const size_t incx)
 {
-    double          dmax, xmag;
-    size_t             i, ii, xindex;
+    double dmax, xmag;
+    size_t i, ii, xindex;
 
     xindex = 0;
     if (n <= 0)
@@ -388,7 +388,8 @@ void LSODA::daxpy(const size_t n, const double da, const double* const dx
    BLAS : daxpy, ddot
 */
 
-void LSODA::dgesl( const vector<vector<double>>& a, const size_t n, const int* const ipvt
+void LSODA::dgesl( const vector<vector<double>>& a, const size_t n
+        , vector<int>& ipvt
         , double* b, const size_t job
         )
 {
@@ -495,7 +496,7 @@ void LSODA::dgesl( const vector<vector<double>>& a, const size_t n, const int* c
 */
 
 
-void LSODA::dgefa( vector<vector<double>>& a, const size_t n, int* const ipvt, size_t* const info)
+void LSODA::dgefa( vector<vector<double>>& a, const size_t n, vector<int>& ipvt, size_t* const info)
 {
     size_t j=0, k=0, i=0;
     double t=0.0;
@@ -619,9 +620,8 @@ void LSODA::terminate(int *istate)
 /* Terminate lsoda due to various error conditions. */
 void LSODA::terminate2( vector<double>& y, double *t)
 {
-    yp1 = yh[1];
     for (size_t i = 1; i <= n; i++)
-        y[i] = yp1[i];
+        y[i] = yh[1][i];
     *t = tn;
     illin = 0;
     return;
@@ -637,9 +637,8 @@ void LSODA::terminate2( vector<double>& y, double *t)
 
 void LSODA::successreturn( vector<double>& y, double *t, int itask, int ihit, double tcrit, int *istate)
 {
-    yp1 = yh[1];
     for (size_t i = 1; i <= n; i++)
-        y[i] = yp1[i];
+        y[i] = yh[1][i];
     *t = tn;
     if (itask == 4 || itask == 5)
         if (ihit)
@@ -776,6 +775,8 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
        , void *_data
     )
 {
+    assert( tout > *t );
+
     int mxstp0 = 500, mxhnl0 = 10;
 
     int iflag=0, lenyh=0, ihit=0;
@@ -813,19 +814,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         terminate(istate);
         return;
     }
-    if (*istate == 1)
-    {
-        init = 0;
-        if (tout == *t)
-        {
-            ntrep++;
-            if (ntrep < 5) return;
 
-            cerr <<  "[lsoda] repeated calls with istate = 1 and tout = t. "
-                << "run aborted.. apparent infinite loop." << endl;
-            return;
-        }
-    }
     /*
        Block b.
        The next code block is executed for the initial call ( *istate = 1 ),
@@ -924,7 +913,10 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 terminate(istate);
                 return;
             }
-            if (mxstep == 0) mxstep = mxstp0;
+
+            if (mxstep == 0) 
+                mxstep = mxstp0;
+
             mxhnil = iwork7;
             if (mxhnil < 0)
             {
@@ -953,7 +945,9 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
                 }
 
                 // if mxords is not given use 100.
-                if (mxords == 0) mxords = 100;
+                if (mxords == 0) 
+                    mxords = 100;
+
                 mxords = min(mxords, mord[2]);
 
                 if ((tout - *t) * h0 < 0.)
@@ -999,19 +993,13 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         g_nyh = nyh = n;
         g_lenyh = lenyh = 1 + max(mxordn, mxords);
 
-        yh.resize( nyh+1, std::vector<double>(nyh+1, 0));
+        yh.resize( lenyh+1, std::vector<double>(nyh+1, 0));
         wm.resize( nyh+1, std::vector<double>(nyh+1, 0));
         ewt.resize( 1+nyh, 0 );
         savf.resize( 1+nyh, 0 );
         acor.resize( nyh + 1, 0 );
+        ipvt.resize( nyh+1, 0);
 
-        ipvt = (int *) calloc(1 + nyh, sizeof(int));
-        if (ipvt == NULL)
-        {
-            printf("lsoda -- insufficient memory for your problem\n");
-            terminate(istate);
-            return;
-        }
     }
     /*
        Check rtol and atol for legality.
@@ -1087,16 +1075,15 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         mxncf = 10;
 
         /* Initial call to f.  */
-        assert( yh.size() == nyh );
-        assert( yh[0].size() == nyh );
+        assert( yh.size() == lenyh + 1 );
+        assert( yh[0].size() == nyh + 1 );
 
         (*f) (*t, &y[1], &yh[2][1], _data);
         nfe = 1;
 
         /* Load the initial value vector in yh.  */
-        yp1 = yh[1];
         for (size_t i = 1; i <= n; i++)
-            yp1[i] = y[i];
+            yh[1][i] = y[i];
 
         /* Load and invert the ewt array.  ( h is temporarily set to 1. ) */
         nq = 1;
@@ -1175,13 +1162,14 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
         rh = fabs(h0) * hmxi;
         if (rh > 1.)
             h0 /= rh;
+
+
         /*
            Load h with h0 and scale yh[2] by h0.
         */
         h = h0;
-        yp1 = yh[2];
         for (size_t i = 1; i <= n; i++)
-            yp1[i] *= h0;
+            yh[2][i] *= h0;
     }			/* if ( *istate == 1 )   */
     /*
        Block d.
@@ -1502,7 +1490,7 @@ void LSODA::lsoda( LSODA_ODE_SYSTEM_TYPE f, const size_t neq
 
 void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, void *_data)
 {
-    assert( neq == y.size() );
+    assert( neq + 1 == y.size() );
 
     size_t corflag=0, orderflag=0;
     size_t i=0,       i1=0,      j=0,     m=0,      ncf=0;
@@ -1646,16 +1634,12 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
             if (nst >= nslp + msbp)
                 ipup = miter;
             tn += h;
-            for (j = nq; j >= 1; j--)
-                for (i1 = j; i1 <= nq; i1++)
-                {
-                    yp1 = yh[i1];
-                    yp2 = yh[i1+1];
+            for (size_t j = nq; j >= 1; j--)
+                for (size_t i1 = j; i1 <= nq; i1++)
                     for (i = 1; i <= n; i++)
-                        yp1[i] += yp2[i];
-                }
-            pnorm = vmnorm(n, yh[1], ewt);
+                        yh[i1][i] += yh[i1+1][i];
 
+            pnorm = vmnorm(n, yh[1], ewt);
             correction(neq, y, f, &corflag, pnorm, &del, &delp, &told, &ncf, &rh, &m, _data);
             if (corflag == 0)
                 break;
@@ -1685,7 +1669,6 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
         if (m > 0)
             dsm = vmnorm(n, acor, ewt) / tesco[nq][2];
 
-
         if (dsm <= 1.)
         {
             /*
@@ -1708,10 +1691,9 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
             mused = meth;
             for (size_t j = 1; j <= l; j++)
             {
-                yp1 = yh[j];
                 r = el[j];
                 for (i = 1; i <= n; i++)
-                    yp1[i] += r * acor[i];
+                    yh[j][i] += r * acor[i];
             }
             icount--;
             if (icount < 0)
@@ -1735,9 +1717,8 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
                 rhup = 0.;
                 if (l != lmax)
                 {
-                    yp1 = yh[lmax];
                     for (i = 1; i <= n; i++)
-                        savf[i] = acor[i] - yp1[i];
+                        savf[i] = acor[i] - yh[lmax][i];
                     dup = vmnorm(n, savf, ewt) / tesco[nq][3];
                     exup = 1. / (double) (l + 1);
                     rhup = 1. / (1.4 * pow(dup, exup) + 0.0000014);
@@ -1783,11 +1764,10 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
                 break;
             }
 
-            for (i = 1; i <= n; i++)
-                yp1[i] = acor[i];
+            for (size_t i = 1; i <= n; i++)
+                yh[lmax][i] = acor[i];
 
             endstoda();
-
             break;
         }
         /* end if ( dsm <= 1. )   */
@@ -1805,12 +1785,8 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
             for (j = nq; j >= 1; j--)
             {
                 for (i1 = j; i1 <= nq; i1++)
-                {
-                    yp1 = yh[i1];
-                    yp2 = yh[i1 + 1];
                     for (i = 1; i <= n; i++)
-                        yp1[i] -= yp2[i];
-                }
+                        yh[i1][i] -= yh[i1+1][i];
             }
             rmax = 2.;
             if (fabs(h) <= hmin * 1.00001)
@@ -1863,14 +1839,12 @@ void LSODA::stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f, 
                     rh = 0.1;
                     rh = max(hmin / fabs(h), rh);
                     h *= rh;
-                    yp1 = yh[1];
                     for (i = 1; i <= n; i++)
-                        y[i] = yp1[i];
+                        y[i] = yh[1][i];
                     (*f) (tn, &y[1], &savf[1], _data);
                     nfe++;
-                    yp1 = yh[2];
                     for (i = 1; i <= n; i++)
-                        yp1[i] = h * savf[i];
+                        yh[2][i] = h * savf[i];
                     ipup = miter;
                     ialth = 5;
                     if (nq == 1)
@@ -1957,9 +1931,8 @@ void LSODA::intdy(double t, int k, vector<double>& dky, int *iflag)
     for (size_t jj = l - k; jj <= nq; jj++)
         ic *= jj;
     c = (double) ic;
-    yp1 = yh[l];
     for (size_t i = 1; i <= n; i++)
-        dky[i] = c * yp1[i];
+        dky[i] = c * yh[l][i];
 
     for (int j = nq - 1; j >=  k; j--)
     {
@@ -1968,9 +1941,9 @@ void LSODA::intdy(double t, int k, vector<double>& dky, int *iflag)
         for (int jj = jp1 - k; jj <= j; jj++)
             ic *= jj;
         c = (double) ic;
-        yp1 = yh[jp1];
+
         for (size_t i = 1; i <= n; i++)
-            dky[i] = c * yp1[i] + s * dky[i];
+            dky[i] = c * yh[jp1][i] + s * dky[i];
     }
     if (k == 0)
         return;
@@ -2144,9 +2117,8 @@ void LSODA::scaleh(double *rh, double *pdh)
     for (size_t j = 2; j <= l; j++)
     {
         r *= *rh;
-        yp1 = yh[j];
         for (size_t i = 1; i <= n; i++)
-            yp1[i] *= r;
+            yh[j][i] *= r;
     }
     h *= *rh;
     rc *= *rh;
@@ -2283,10 +2255,9 @@ void LSODA::correction(const size_t neq, vector<double>& y
     *m = 0;
     *corflag = 0;
     *del = 0.;
-    yp1 = yh[1];
 
     for (i = 1; i <= n; i++)
-        y[i] = yp1[i];
+        y[i] = yh[1][i];
 
     (*f) (tn, &y[1], &savf[1], _data);
 
@@ -2322,17 +2293,15 @@ void LSODA::correction(const size_t neq, vector<double>& y
                In case of functional iteration, update y directly from
                the result of the last function evaluation.
             */
-            yp1 = yh[2];
             for (i = 1; i <= n; i++)
             {
-                savf[i] = h * savf[i] - yp1[i];
+                savf[i] = h * savf[i] - yh[2][i];
                 y[i] = savf[i] - acor[i];
             }
             *del = vmnorm(n, y, ewt);
-            yp1 = yh[1];
             for (i = 1; i <= n; i++)
             {
-                y[i] = yp1[i] + el[1] * savf[i];
+                y[i] = yh[1][i] + el[1] * savf[i];
                 acor[i] = savf[i];
             }
         }
@@ -2344,16 +2313,16 @@ void LSODA::correction(const size_t neq, vector<double>& y
          */
         else
         {
-            yp1 = yh[2];
             for (i = 1; i <= n; i++)
-                y[i] = h * savf[i] - (yp1[i] + acor[i]);
+                y[i] = h * savf[i] - (yh[2][i] + acor[i]);
+
             solsy(&y[0]);
             *del = vmnorm(n, y, ewt);
-            yp1 = yh[1];
+
             for (i = 1; i <= n; i++)
             {
                 acor[i] += y[i];
-                y[i] = yp1[i] + el[1] * acor[i];
+                y[i] = yh[1][i] + el[1] * acor[i];
             }
         }		/* end chord method   */
         /*
@@ -2411,10 +2380,11 @@ void LSODA::correction(const size_t neq, vector<double>& y
             *m = 0;
             rate = 0.;
             *del = 0.;
-            yp1 = yh[1];
             for (i = 1; i <= n; i++)
-                y[i] = yp1[i];
+                y[i] = yh[1][i];
+
             (*f) (tn, &y[1], &savf[1], _data);
+
             nfe++;
         }
         /*
@@ -2436,12 +2406,9 @@ void LSODA::corfailure(double *told, double *rh, size_t *ncf, size_t *corflag)
     tn = *told;
     for (size_t j = nq; j >= 1; j--)
         for (size_t i1 = j; i1 <= nq; i1++)
-        {
-            yp1 = yh[i1];
-            yp2 = yh[i1+1];
             for (size_t i = 1; i <= n; i++)
-                yp1[i] -= yp2[i];
-        }
+                yh[i1][i] -= yh[i1+1][i];
+
     if (fabs(h) <= hmin * 1.00001 || *ncf == mxncf)
     {
         *corflag = 2;
@@ -2608,7 +2575,6 @@ void LSODA::methodswitch(double dsm, double pnorm, double *pdh, double *rh)
 */
 void LSODA::endstoda()
 {
-    cout << "E" << endl;
     double r = 1. / tesco[nqu][2];
     for (size_t i = 1; i <= n; i++)
         acor[i] *= r;
@@ -2692,9 +2658,9 @@ void LSODA::orderswitch(double *rhup, double dsm, double *pdh, double *rh, size_
                 r = el[l] / (double) l;
                 nq = l;
                 l = nq + 1;
-                yp1 = yh[l];
                 for (size_t i = 1; i <= n; i++)
-                    yp1[i] = acor[i] * r;
+                    yh[l][i] = acor[i] * r;
+
                 *orderflag = 2;
                 return;
             }
