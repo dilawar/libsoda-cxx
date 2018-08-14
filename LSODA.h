@@ -1,17 +1,9 @@
 /***
- *       Filename:  LSODE.h_
- *
- *    Description:  See LSODE.cpp file to more information.
- *
- *        Version:  0.0.1
- *        Created:  2018-08-09
+ *        Created:  2018-08-14
 
- *       Revision:  none
- *
  *         Author:  Dilawar Singh <dilawars@ncbs.res.in>
  *   Organization:  NCBS Bangalore
- *
- *        License:  GNU GPL3
+ *        License:  MIT License
  */
 
 #ifndef LSODE_H
