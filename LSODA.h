@@ -29,8 +29,7 @@ using namespace std;
  * @Returns void
  */
 /* ----------------------------------------------------------------------------*/
-typedef void (*LSODA_ODE_SYSTEM_TYPE)(double t, double *y, double *dydt,
-                                      void *);
+typedef void (*LSODA_ODE_SYSTEM_TYPE)(double t, double *y, double *dydt, void *);
 
 class LSODA
 {
