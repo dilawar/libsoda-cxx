@@ -62,96 +62,16 @@ void LSODA::dscal1(const double da, vector<double>& dx, const size_t n, const si
 
 }
 
-/**********
- * ddot.c *
- **********/
-
-/*
-   Purpose : Inner product dx . dy
-
-
-   --- Input ---
-
-   n    : number of elements in input vector(s)
-   dx   : double vector with n+1 elements, dx[0] is not used
-   incx : storage spacing between elements of dx
-   dy   : double vector with n+1 elements, dy[0] is not used
-   incy : storage spacing between elements of dy
-
-
-   --- Output ---
-
-   ddot : dot product dx . dy, 0 if n <= 0
-
-
-   ddot = sum for i = 0 to n-1 of
-   dx[lx+i*incx] * dy[ly+i*incy] where lx = 1 if
-   incx >= 0, else lx = (-incx)*(n-1)+1, and ly
-   is defined in a similar way using incy.
-
-*/
-
-double LSODA::ddot(const size_t n, const double *const dx, const int incx,
-                   const double *const dy, const int incy) {
-  double dotprod;
-  size_t ix, iy, i, m;
-
-  dotprod = 0.;
-  if (n <= 0)
-    return dotprod;
-
-  /* Code for unequal or nonpositive increments.  */
-
-  if (incx != incy || incx < 1) {
-    ix = 1;
-    iy = 1;
-    if (incx < 0)
-      ix = (-n + 1) * incx + 1;
-    if (incy < 0)
-      iy = (-n + 1) * incy + 1;
-    for (i = 1; i <= n; i++) {
-      dotprod = dotprod + dx[ix] * dy[iy];
-      ix = ix + incx;
-      iy = iy + incy;
-    }
-    return dotprod;
-  }
-  /* Code for both increments equal to 1.  */
-
-  /* Clean-up loop so remaining vector length is a multiple of 5.  */
-
-  if (incx == 1) {
-    m = n % 5;
-    if (m != 0) {
-      for (i = 1; i <= m; i++)
-        dotprod = dotprod + dx[i] * dy[i];
-      if (n < 5)
-        return dotprod;
-    }
-    for (i = m + 1; i <= n; i = i + 5)
-      dotprod = dotprod + dx[i] * dy[i] + dx[i + 1] * dy[i + 1] +
-                dx[i + 2] * dy[i + 2] + dx[i + 3] * dy[i + 3] +
-                dx[i + 4] * dy[i + 4];
-    return dotprod;
-  }
-  /* Code for positive equal nonunit increments.   */
-
-  for (i = 1; i <= n * incx; i = i + incx)
-    dotprod = dotprod + dx[i] * dy[i];
-  return dotprod;
-}
-
+/* Purpose : Inner product dx . dy */
 double LSODA::ddot1( const vector<double>& a, const vector<double>& b, const size_t n
         , const size_t offsetA = 0
         , const size_t offsetB = 0
     )
 {
-    vector<double> res(a.size()-1-offsetA, 0);
-    std::transform( a.begin()+1+offsetA, a.end(), b.begin()+1+offsetB
-            , std::back_inserter(res)
-            , std::multiplies<double>()
-            );
-    return std::accumulate( res.begin(), res.end(), 0);
+    double sum = 0.0;
+    for (size_t i = 1; i <= n; i++) 
+        sum += a[i+offsetA] * b[i+offsetB];
+    return sum;
 }
 
 /***********
@@ -258,15 +178,14 @@ void LSODA::dgesl(const vector<vector<double>> &a, const size_t n,
        First solve L * y = b.
     */
     for (k = 1; k <= n; k++) {
-      t = ddot(k - 1, &a[k][0], 1, &b[0], 1);
-      // t = ddot1(a[k], b, k-1);
+      t = ddot1(a[k], b, k-1);
       b[k] = (b[k] - t) / a[k][k];
     }
     /*
        Now solve U * x = y.
     */
     for (k = n - 1; k >= 1; k--) {
-      b[k] = b[k] + ddot(n - k, &a[k][k], 1, &b[k], 1);
+      b[k] = b[k] + ddot1(a[k], b, n-k, k, k);
       j = ipvt[k];
       if (j != k) {
         t = b[j];

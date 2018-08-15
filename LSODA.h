@@ -42,10 +42,6 @@ public:
 
   void dscal1(const double da, vector<double>& dx, const size_t n, const size_t offset);
 
-  double ddot(const size_t n, const double *const dx, const int ncx,
-          const double *const dy, const int incy
-          );
-
   double ddot1( const vector<double>& a, const vector<double>& b, const size_t n
           , const size_t offsetA
           , const size_t offsetB
