@@ -47,9 +47,24 @@ bool LSODA::abs_compare( double a, double b)
 }
 
 /* Purpose : Find largest component of double vector dx */
-size_t LSODA::idamax1( const vector<double>& dx, const size_t n, const size_t offset=0) 
+size_t LSODA::idamax1( const vector<double>& dx, const size_t n, const size_t offset=0)
 {
-  return std::max_element( dx.begin()+1+offset, dx.begin()+1+n, LSODA::abs_compare) - dx.begin() - offset;
+
+  size_t v = 0, vmax = 0;
+  size_t idmax = 0;
+  for( size_t i = 1; i <= n; i++)
+  {
+      v = abs(dx[i+offset]);
+      if( v > vmax )
+      {
+          vmax = v;
+          idmax = i;
+      }
+  }
+  return idmax;
+
+  // Following has failed with seg-fault. Probably issue with STL.
+  // return std::max_element( dx.begin()+1+offset, dx.begin()+1+n, LSODA::abs_compare) - dx.begin() - offset;
 }
 
 /* Purpose : scalar vector multiplication
@@ -57,7 +72,7 @@ size_t LSODA::idamax1( const vector<double>& dx, const size_t n, const size_t of
 */
 void LSODA::dscal1(const double da, vector<double>& dx, const size_t n, const size_t offset = 0 )
 {
-    std::transform( dx.begin()+1+offset, dx.end(), dx.begin()+1+offset, 
+    std::transform( dx.begin()+1+offset, dx.end(), dx.begin()+1+offset,
             [&da](double x) -> double { return da*x; } );
 
 }
@@ -69,7 +84,7 @@ double LSODA::ddot1( const vector<double>& a, const vector<double>& b, const siz
     )
 {
     double sum = 0.0;
-    for (size_t i = 1; i <= n; i++) 
+    for (size_t i = 1; i <= n; i++)
         sum += a[i+offsetA] * b[i+offsetB];
     return sum;
 }
