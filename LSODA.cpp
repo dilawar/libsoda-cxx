@@ -58,7 +58,7 @@ size_t LSODA::idamax1( const vector<double>& dx, const size_t n, const size_t of
 {
 
   size_t v = 0, vmax = 0;
-  size_t idmax = 0;
+  size_t idmax = 1;
   for( size_t i = 1; i <= n; i++)
   {
       v = abs(dx[i+offset]);

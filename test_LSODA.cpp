@@ -14,6 +14,7 @@
 #include <cassert>
 #include <chrono>
 #include <cmath>
+#include <stdexcept>
 
 #include "LSODA.h"
 #include "helper.h"
@@ -33,7 +34,7 @@ static void system_scipy( double t, double* y, double* ydot, void* data)
 {
     double mu = 1E4;
     ydot[0] = y[1];
-    ydot[1] = mu * (1- y[0]*y[0])*y[1] - y[0];
+    ydot[1] = mu * (1- y[0]*y[0]) * y[1] - y[0];
 }
 
 // This system is described here
@@ -76,7 +77,7 @@ int test_github_system( void )
     if (istate <= 0)
     {
         cerr << "error istate = " <<  istate << endl;
-        exit(0);
+        throw runtime_error( "Failed to compute the solution." );
     }
 
     return 0;
