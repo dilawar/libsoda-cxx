@@ -20,8 +20,10 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 #include <memory>
 #include <vector>
+#include <numeric>
 
 #include "helper.h"
 
@@ -39,117 +41,25 @@ LSODA::LSODA() {
 
 LSODA::~LSODA() {}
 
-/* Purpose : Find largest component of double vector dx
-   --- Input ---
-
-   n    : number of elements in input vector
-   dx   : double vector with n+1 elements, dx[0] is not used
-   incx : storage spacing between elements of dx
-
-   --- Output ---
-
-   idamax : smallest index, 0 if n <= 0
-
-   Find smallest index of maximum magnitude of dx.
-   idamax = first i, i=1 to n, to minimize fabs( dx[1-incx+i*incx] ).
-*/
-int LSODA::idamax(const size_t n, const double *const dx, const size_t incx) {
-  double dmax, xmag;
-  size_t i, ii, xindex;
-
-  xindex = 0;
-  if (n <= 0)
-    return xindex;
-  xindex = 1;
-  if (n <= 1 || incx <= 0)
-    return xindex;
-
-  /* Code for increments not equal to 1.   */
-
-  if (incx != 1) {
-    dmax = std::fabs(dx[1]);
-    ii = 2;
-    for (i = 1 + incx; i <= n * incx; i = i + incx) {
-      xmag = std::fabs(dx[i]);
-      if (xmag > dmax) {
-        xindex = ii;
-        dmax = xmag;
-      }
-      ii++;
-    }
-    return xindex;
-  }
-  /* Code for increments equal to 1.  */
-
-  dmax = std::fabs(dx[1]);
-  for (i = 2; i <= n; i++) {
-    xmag = std::fabs(dx[i]);
-    if (xmag > dmax) {
-      xindex = i;
-      dmax = xmag;
-    }
-  }
-  return xindex;
+bool LSODA::abs_compare( double a, double b)
+{
+    return (std::abs(a) < std::abs(b));
 }
 
-/***********
- * dscal.c *
- ***********/
+/* Purpose : Find largest component of double vector dx */
+size_t LSODA::idamax1( const vector<double>& dx, const size_t n, const size_t offset=0) 
+{
+  return std::max_element( dx.begin()+1+offset, dx.begin()+1+n, LSODA::abs_compare) - dx.begin() - offset;
+}
+
 /* Purpose : scalar vector multiplication
-
    dx = da * dx
-
-
-   --- Input ---
-
-   n    : number of elements in input vector
-   da   : double scale factor
-   dx   : double vector with n+1 elements, dx[0] is not used
-   incx : storage spacing between elements of dx
-
-
-   --- Output ---
-
-   dx = da * dx, unchanged if n <= 0
-
-
-   For i = 0 to n-1, replace dx[1+i*incx] with
-   da * dx[1+i*incx].
-
 */
-void LSODA::dscal(const size_t n, const double da, double *dx,
-                  const size_t incx) {
-  size_t m, i;
+void LSODA::dscal1(const double da, vector<double>& dx, const size_t n, const size_t offset = 0 )
+{
+    std::transform( dx.begin()+1+offset, dx.end(), dx.begin()+1+offset, 
+            [&da](double x) -> double { return da*x; } );
 
-  if (n <= 0)
-    return;
-
-  /* Code for increments not equal to 1.  */
-
-  if (incx != 1) {
-    for (i = 1; i <= n * incx; i = i + incx)
-      dx[i] = da * dx[i];
-    return;
-  }
-  /* Code for increments equal to 1.  */
-
-  /* Clean-up loop so remaining vector length is a multiple of 5.  */
-
-  m = n % 5;
-  if (m != 0) {
-    for (i = 1; i <= m; i++)
-      dx[i] = da * dx[i];
-    if (n < 5)
-      return;
-  }
-  for (i = m + 1; i <= n; i = i + 5) {
-    dx[i] = da * dx[i];
-    dx[i + 1] = da * dx[i + 1];
-    dx[i + 2] = da * dx[i + 2];
-    dx[i + 3] = da * dx[i + 3];
-    dx[i + 4] = da * dx[i + 4];
-  }
-  return;
 }
 
 /**********
@@ -229,6 +139,19 @@ double LSODA::ddot(const size_t n, const double *const dx, const int incx,
   for (i = 1; i <= n * incx; i = i + incx)
     dotprod = dotprod + dx[i] * dy[i];
   return dotprod;
+}
+
+double LSODA::ddot1( const vector<double>& a, const vector<double>& b, const size_t n
+        , const size_t offsetA = 0
+        , const size_t offsetB = 0
+    )
+{
+    vector<double> res(a.size()-1-offsetA, 0);
+    std::transform( a.begin()+1+offsetA, a.end(), b.begin()+1+offsetB
+            , std::back_inserter(res)
+            , std::multiplies<double>()
+            );
+    return std::accumulate( res.begin(), res.end(), 0);
 }
 
 /***********
@@ -323,7 +246,7 @@ void LSODA::daxpy(const size_t n, const double da, const double *const dx,
 
 // See BLAS documentation. The first argument has been changed to vector.
 void LSODA::dgesl(const vector<vector<double>> &a, const size_t n,
-                  vector<int> &ipvt, double *b, const size_t job) {
+                  vector<int> &ipvt, vector<double>& b, const size_t job) {
   size_t k, j;
   double t;
 
@@ -335,14 +258,15 @@ void LSODA::dgesl(const vector<vector<double>> &a, const size_t n,
        First solve L * y = b.
     */
     for (k = 1; k <= n; k++) {
-      t = ddot(k - 1, &a[k][0], 1, b, 1);
+      t = ddot(k - 1, &a[k][0], 1, &b[0], 1);
+      // t = ddot1(a[k], b, k-1);
       b[k] = (b[k] - t) / a[k][k];
     }
     /*
        Now solve U * x = y.
     */
     for (k = n - 1; k >= 1; k--) {
-      b[k] = b[k] + ddot(n - k, &a[k][k], 1, b + k, 1);
+      b[k] = b[k] + ddot(n - k, &a[k][k], 1, &b[k], 1);
       j = ipvt[k];
       if (j != k) {
         t = b[j];
@@ -364,7 +288,7 @@ void LSODA::dgesl(const vector<vector<double>> &a, const size_t n,
       b[j] = b[k];
       b[k] = t;
     }
-    daxpy(n - k, t, &a[k][k], 1, b + k, 1);
+    daxpy(n - k, t, &a[k][k], 1, &b[k], 1);
   }
   /*
      Now solve Transpose(L) * x = y.
@@ -372,7 +296,7 @@ void LSODA::dgesl(const vector<vector<double>> &a, const size_t n,
   for (k = n; k >= 1; k--) {
     b[k] = b[k] / a[k][k];
     t = -b[k];
-    daxpy(k - 1, t, &a[k][0], 1, b, 1);
+    daxpy(k - 1, t, &a[k][0], 1, &b[0], 1);
   }
 }
 
@@ -390,7 +314,7 @@ void LSODA::dgefa(vector<vector<double>> &a, const size_t n, vector<int> &ipvt,
        Find j = pivot index.  Note that a[k]+k-1 is the address of
        the 0-th element of the row vector whose 1st element is a[k][k].
     */
-    j = idamax(n - k + 1, &a[k][k - 1], 1) + k - 1;
+    j = idamax1( a[k], n-k+1, k-1) + k - 1;
     ipvt[k] = j;
     /*
        Zero pivot implies this row already triangularized.
@@ -411,7 +335,8 @@ void LSODA::dgefa(vector<vector<double>> &a, const size_t n, vector<int> &ipvt,
        Compute multipliers.
     */
     t = -1. / a[k][k];
-    dscal(n - k, t, &a[k][k], 1);
+    dscal1(t, a[k], n-k, k);
+
     /*
        Column elimination with row indexing.
     */
@@ -1872,7 +1797,7 @@ void LSODA::correction(const size_t neq, vector<double> &y,
       for (size_t i = 1; i <= n; i++)
         y[i] = h_ * savf[i] - (yh_[2][i] + acor[i]);
 
-      solsy(&y[0]);
+      solsy(y);
       *del = vmnorm(n, y, ewt);
 
       for (size_t i = 1; i <= n; i++) {
@@ -1975,7 +1900,7 @@ void LSODA::corfailure(double *told, double *rh, size_t *ncf, size_t *corflag) {
    y = the right-hand side vector on input, and the solution vector
        on output.
 */
-void LSODA::solsy(double *y) {
+void LSODA::solsy(vector<double>& y) {
   iersl = 0;
   if (miter != 2) {
     printf("solsy -- miter != 2\n");
