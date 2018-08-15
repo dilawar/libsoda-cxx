@@ -93,9 +93,9 @@ int test_scipy_sys( void )
 
     LSODA lsoda;
 
+    // Create vector to store results. NOTE THAT yout[0] will be ignored.
     vector<double> yout;
     lsoda.lsoda_update( system_scipy, 2, y, yout, &t, tout, &istate, nullptr );
-    // printf(" at t= %12.4e y= %14.6e %14.6e\n", t, yout[1], yout[2]);
 
     areEqual( 9.999899e+00, yout[1]);
     areEqual( -1.010111e-05, yout[2] );
