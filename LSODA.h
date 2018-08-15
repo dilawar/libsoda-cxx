@@ -38,20 +38,23 @@ public:
   LSODA();
   ~LSODA();
 
-  size_t idamax1( const vector<double>& dx, const size_t n, const size_t offset);
+  size_t idamax1(const vector<double> &dx, const size_t n, const size_t offset);
 
-  void dscal1(const double da, vector<double>& dx, const size_t n, const size_t offset);
+  void dscal1(const double da, vector<double> &dx, const size_t n,
+              const size_t offset);
 
-  double ddot1( const vector<double>& a, const vector<double>& b, const size_t n
-          , const size_t offsetA
-          , const size_t offsetB
-          );
+  double ddot1(const vector<double> &a, const vector<double> &b, const size_t n,
+               const size_t offsetA, const size_t offsetB);
 
   void daxpy(const size_t n, const double da, const double *const dx,
              const int incx, double *dy, const int incy);
 
+  void daxpy1(const double da, const vector<double> &dx, vector<double> &dy,
+              const size_t n, const size_t offsetX,
+              const size_t offsetY);
+
   void dgesl(const vector<vector<double>> &a, const size_t n, vector<int> &ipvt,
-             vector<double>& b, const size_t job);
+             vector<double> &b, const size_t job);
 
   void dgefa(vector<vector<double>> &a, const size_t n, vector<int> &ipvt,
              size_t *const info);
@@ -85,7 +88,7 @@ public:
   void _freevectors(void);
   void ewset(const vector<double> &ycur);
   void resetcoeff(void);
-  void solsy(vector<double>& y);
+  void solsy(vector<double> &y);
   void endstoda(void);
   void orderswitch(double *rhup, double dsm, double *pdh, double *rh,
                    size_t *orderflag);
@@ -98,7 +101,7 @@ public:
   double vmnorm(const size_t n, const vector<double> &v,
                 const vector<double> &w);
 
-  static bool abs_compare( double a, double b);
+  static bool abs_compare(double a, double b);
 
 private:
   size_t ml, mu, imxer;
