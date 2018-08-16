@@ -35,7 +35,7 @@ using namespace std;
 LSODA::LSODA()
 {
     // Initialize arrays.
-    mord = {{0, 12, 5}};
+    mord = {{12, 5}};
     sm1 = {{
             0., 0.5, 0.575, 0.55, 0.45, 0.35, 0.25, 0.2, 0.15, 0.1, 0.075, 0.05,
             0.025
@@ -401,8 +401,8 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double> &y,
             if (*istate == 1)
             {
                 h0 = 0.;
-                mxordn = mord[1];
-                mxords = mord[2];
+                mxordn = mord[0];
+                mxords = mord[1];
             }
         }
         /* end if ( iopt == 0 )   */
@@ -430,14 +430,14 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double> &y,
                 if (mxordn == 0)
                     mxordn = 100;
 
-                mxordn = min(mxordn, mord[1]);
+                mxordn = min(mxordn, mord[0]);
                 mxords = iworks[6];
 
                 // if mxords is not given use 100.
                 if (mxords == 0)
                     mxords = 100;
 
-                mxords = min(mxords, mord[2]);
+                mxords = min(mxords, mord[1]);
 
                 if ((tout - *t) * h0 < 0.)
                 {
@@ -2237,13 +2237,16 @@ void LSODA::_freevectors(void)
 /* ----------------------------------------------------------------------------*/
 void LSODA::lsoda_update(LSODA_ODE_SYSTEM_TYPE f, const size_t neq,
                          vector<double> &y, vector<double> &yout, double *t,
-                         const double tout, int *istate, void *const _data,
-                         double rtol, double atol)
+                         const double tout, int *istate, void * _data,
+                         double rtol, double atol 
+                        )
 {
     array<int, 7> iworks = {{0}};
     array<double, 4> rworks = {{0.0}};
 
     int itask, iopt, jt;
+
+    // cout << "Debug : rtol " << rtol << ". atol " << atol << endl;
 
     itask = 1;
     iopt = 0;

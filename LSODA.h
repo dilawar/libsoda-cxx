@@ -75,7 +75,7 @@ public:
     void lsoda_update(LSODA_ODE_SYSTEM_TYPE f, const size_t neq,
                       vector<double> &y, std::vector<double> &yout, double *t,
                       const double tout, int *istate, void *const _data,
-                      double rtol = 1e-4, double atol = 1e-6 // Tolerance
+                      double rtol = 1e-6, double atol = 1e-6 // Tolerance
                      );
 
     void terminate(int *istate);
