@@ -296,11 +296,13 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double>& y,
         // fprintf(stderr, "[lsoda] illegal istate = %d\n", *istate);
         cerr << "[lsoda] illegal istate = " << *istate << endl;
         terminate(istate);
+        throw runtime_error( "LSODA failed to compute." );
         return;
     }
     if (itask < 1 || itask > 5) {
         fprintf(stderr, "[lsoda] illegal itask = %d\n", itask);
         terminate(istate);
+        throw runtime_error( "LSODA failed to compute." );
         return;
     }
     if (init == 0 && (*istate == 2 || *istate == 3)) {
