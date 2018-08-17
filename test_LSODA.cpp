@@ -71,8 +71,9 @@ int test_github_system( void )
         cout << t << ' ' << setprecision(8) << y[0] << ' ' << y[1] << endl;
     }
 
-    assert( areEqual(-11.9400786, res[0]) );
-    assert( areEqual( 3.8608262, res[1]) );
+    cout << res[0] << ' ' << res[1] << endl;
+    assert( areEqual(-11.94045, res[0]) );
+    assert( areEqual( 3.8610102, res[1]) );
 
     if (istate <= 0)
     {
