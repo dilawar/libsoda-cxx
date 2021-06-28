@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dilawar/libsoda.svg?branch=master)](https://travis-ci.org/dilawar/libsoda)
+[![Build Status](https://github.com/dilawar/libsoda/actions/workflows/cmake.yml/badge.svg)](https://github.com/dilawar/libsoda/actions/workflows/cmake.yml)
 
 ## libsoda++
 
