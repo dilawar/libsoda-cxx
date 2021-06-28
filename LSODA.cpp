@@ -77,6 +77,9 @@ size_t LSODA::idamax1(const vector<double> &dx, const size_t n, const size_t off
 void LSODA::dscal1(
     const double da, vector<double> &dx, const size_t n, const size_t offset = 0)
 {
+    // FIXME: n is not used here. why?
+    (void)n;
+
     std::transform(dx.begin() + 1 + offset, dx.end(), dx.begin() + 1 + offset,
         [&da](double x) -> double { return da * x; });
 }
@@ -517,7 +520,7 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double> &y, 
         mxncf  = 10;
 
         /* Initial call to f.  */
-        assert(yh_.size() == lenyh + 1);
+        assert((int)yh_.size() == lenyh + 1);
         assert(yh_[0].size() == nyh + 1);
 
         (*f)(*t, &y[1], &yh_[2][1], _data);
@@ -669,6 +672,7 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double> &y, 
                     illin   = 0;
                     return;
                 }
+                break;
             case 5:
                 if(itask == 5) {
                     tcrit = rworks[0];
@@ -1489,6 +1493,8 @@ void LSODA::scaleh(double *rh, double *pdh)
 void LSODA::prja(
     const size_t neq, vector<double> &y, LSODA_ODE_SYSTEM_TYPE f, void *_data)
 {
+    (void)neq;
+
     size_t i = 0, ier = 0, j = 0;
     double fac = 0.0, hl0 = 0.0, r = 0.0, r0 = 0.0, yj = 0.0;
     /*

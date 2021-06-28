@@ -2,29 +2,34 @@ cmake_minimum_required(VERSION 3.12)
 
 project(libsoda-cxx VERSION 0.1.0)
 
+
+#
+# compiler
+#
 set(CMAKE_CXX_STANDARD 11)
+add_definitions(-Wall -Wextra -Werror)
 
-add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
-
-if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
-    set_target_properties( lsoda PROPERTIES COMPILE_FLAGS "-Werror -Wall")
-endif()
-
+#
+# Configuration.
+#
 find_package(Threads REQUIRED)
 
+#
+# targets
+#
+add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
+
+
 add_executable( test_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/test_LSODA.cpp)
-target_link_libraries( test_lsoda lsoda )
+target_link_libraries(test_lsoda lsoda)
 
-add_executable( benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/benchmark_LSODA.cpp)
-target_link_libraries( benchmark_lsoda lsoda )
-
-set_target_properties(test_lsoda PROPERTIES COMPILE_FLAGS "-g -UNDEBUG" )
-
-set_target_properties(benchmark_lsoda
-    PROPERTIES COMPILE_FLAGS "-O3" LINK_FLAGS "-pthread"
-    )
+add_executable(benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/benchmark_LSODA.cpp)
+target_link_libraries(benchmark_lsoda lsoda)
 target_link_libraries(benchmark_lsoda ${CMAKE_THREAD_LIBS_INIT})
 
+#
+# Tests and benchmark
+#
 enable_testing()
 add_test(NAME test_lsoda COMMAND $<TARGET_FILE:test_lsoda>)
 add_test(NAME test_benchmark COMMAND $<TARGET_FILE:benchmark_lsoda>)
