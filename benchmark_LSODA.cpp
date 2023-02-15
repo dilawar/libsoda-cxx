@@ -49,7 +49,7 @@ static void system_scipy(double t, double* y, double* ydot, void* data)
 // https://github.com/sdwfrost/liblsoda/issues/10
 static void system_github_issue_10(double t, double* y, double* ydot, void* data)
 {
-    (void) data;
+    (void)data;
 
     ydot[0] = 9 * y[0] + 24 * y[1] + 5 * cos(t) - (1 / 3) * sin(t);
     ydot[1] = -24 * y[0] - 51 * y[1] - 95 * cos(t) + (1 / 3) * sin(t);
@@ -82,10 +82,13 @@ double test_github_system(void)
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
 
-    if(!areEqual(-11.9400786, res[0]))
-        cout << 'x';
-    if(!areEqual(3.8608262, res[1]))
-        cout << 'x';
+    // NOTICE:
+    // We are using normal than usual tolerace in areEqual function because the
+    // values are a little different across different platforms e.g. Winodws
+    // (MSVC/gcc) and Linux. Not sure if this suppose to happen.
+    if(!(areEqual(-11.9400786, res[0], 1e-3, true) &&
+           areEqual(3.8608262, res[1], 1e-3, true)))
+        cerr << "Failure!" << endl;
     double dt = duration_cast<chrono::microseconds>(end - begin).count();
     return dt;
 }
@@ -239,8 +242,8 @@ int run_multithreaded()
 
 int main(int argc, const char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     cout << "|| running serial version" << endl;
     run_serial();

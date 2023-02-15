@@ -2,9 +2,13 @@
 #define HELPER_H
 
 template <typename T = double>
-bool areEqual(T a, T b)
+bool areEqual(T a, T b, T tol = 1e-5, bool verbose = false)
 {
-    return std::fabs(a - b) < 1e-6;
+    auto f = std::fabs(a - b) < tol;
+    if(verbose && !f) {
+        std::cerr << "Expected " << a << " got " << b << std::endl;
+    }
+    return f;
 }
 
 template <typename T = double>

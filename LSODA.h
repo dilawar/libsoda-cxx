@@ -1,8 +1,6 @@
 /***
- *        Created:  2018-08-14
-
- *         Author:  Dilawar Singh <dilawars@ncbs.res.in>
- *   Organization:  NCBS Bangalore
+ *         Author:  Dilawar Singh <mail@dilawars.me>
+ *   Organization:  Subconscious Compute
  *        License:  MIT License
  */
 

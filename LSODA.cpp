@@ -1,6 +1,6 @@
 /*
  * HISTORY:
- * This is a CPP version of the LSODA library for integration into MOOSE
+ * This is a CXX version of the LSODA library for integration into MOOSE
  somulator.
  * The original was aquired from
  * http://www.ccl.net/cca/software/SOURCES/C/kinetics2/index.shtml and modified
@@ -11,10 +11,12 @@
 
  * The original source code came with no license or copyright
  * information. Heng Li released his modification under the MIT/X11 license. I
- * maintain the same license. I have removed quite a lot of text/comments from
- * this library. Please refer to the standard documentation.
+ * used the same license.
  *
- * Contact: Dilawar Singh <dilawars@ncbs.res.in>
+ * I have removed quite a lot of text/comments from this library during development.
+ * Please refer to the standard documentation.
+ *
+ * Contact: Dilawar Singh <mail@dilawars.me>
 */
 
 #include "LSODA.h"
