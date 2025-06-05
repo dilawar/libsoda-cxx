@@ -21,12 +21,10 @@ find_package(Threads REQUIRED)
 
 add_executable(test_lsoda ${CMAKE_SOURCE_DIR}/tests/test_LSODA.cpp)
 target_link_libraries(test_lsoda lsoda)
-target_include_directories(test_lsoda PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 add_executable(benchmark_lsoda ${CMAKE_SOURCE_DIR}/tests/benchmark_LSODA.cpp)
 target_link_libraries(benchmark_lsoda lsoda)
 target_link_libraries(benchmark_lsoda ${CMAKE_THREAD_LIBS_INIT})
-target_include_directories(benchmark_lsoda PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 # Tests and benchmark
 enable_testing()
