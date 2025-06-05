@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(libsoda-cxx VERSION 0.1.0)
+project(libsoda-cxx VERSION 0.1.1)
 
 # compiler
 set(CMAKE_CXX_STANDARD 11)
@@ -15,12 +15,12 @@ endif()
 find_package(Threads REQUIRED)
 
 # targets
-add_library( lsoda ${CMAKE_CURRENT_SOURCE_DIR}/LSODA.cpp)
+add_library(lsoda ${CMAKE_CURRENT_SOURCE_DIR}/src/LSODA.cpp)
 
-add_executable(test_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/test_LSODA.cpp)
+add_executable(test_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_LSODA.cpp)
 target_link_libraries(test_lsoda lsoda)
 
-add_executable(benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/benchmark_LSODA.cpp)
+add_executable(benchmark_lsoda ${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_LSODA.cpp)
 target_link_libraries(benchmark_lsoda lsoda)
 target_link_libraries(benchmark_lsoda ${CMAKE_THREAD_LIBS_INIT})
 
