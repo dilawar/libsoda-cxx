@@ -27,11 +27,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include <memory>
-#include <numeric>
 #include <vector>
-
-#include "helper.h"
 
 using namespace std;
 
@@ -71,7 +67,7 @@ size_t LSODA::idamax1(
     }
     return idmax;
 
-    // Following has failed with seg-fault. Probably issue with STL.
+    // Following failed with seg-fault. Probably issue with STL.
     // return std::max_element( dx.begin()+1+offset, dx.begin()+1+n,
     // LSODA::abs_compare) - dx.begin() - offset;
 }
@@ -2063,7 +2059,7 @@ void LSODA::resetcoeff()
 
 void LSODA::_freevectors(void)
 {
-    // Does nothing. USE c++ memory mechanism here.
+    // Do nothing. C++ manages memory for us.
 }
 
 /* --------------------------------------------------------------------------*/
@@ -2105,8 +2101,9 @@ void LSODA::lsoda_update(LSODA_ODE_SYSTEM_TYPE f, const size_t neq,
     atol_[0] = 0;
 
     // Fill-in values.
-    for (size_t i = 1; i <= neq; i++)
+    for (size_t i = 1; i <= neq; i++) {
         yout[i] = y[i - 1];
+    }
 
     lsoda(
         f, neq, yout, t, tout, itask, istate, iopt, jt, iworks, rworks, _data);
