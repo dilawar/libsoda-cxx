@@ -2,7 +2,8 @@
 
 # libsoda++
 
-This is `c++11` port of LSODA library. See Credits below. See `./test_LSODA.cpp` for an example.
+This is a `c++11` port of LSODA library.  See
+[./tests/test_LSODA.cpp](tests/test_LSODA.cpp) for an example.
 
 ## Credits
 
