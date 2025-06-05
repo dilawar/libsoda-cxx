@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/dilawar/libsoda/actions/workflows/cmake.yml/badge.svg)](https://github.com/dilawar/libsoda/actions/workflows/cmake.yml)
+[![CMake on multiple platforms](https://github.com/dilawar/libsoda-cxx/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/dilawar/libsoda-cxx/actions/workflows/cmake-multi-platform.yml)
 
 # libsoda++
 
