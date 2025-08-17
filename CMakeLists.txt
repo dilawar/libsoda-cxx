@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-
-project(libsoda-cxx VERSION 0.1.1)
+project(libsoda-cxx VERSION 0.1.2)
 
 # compiler
 set(CMAKE_CXX_STANDARD 11)
@@ -28,11 +27,10 @@ target_link_libraries(benchmark_lsoda ${CMAKE_THREAD_LIBS_INIT})
 
 # Tests and benchmark
 enable_testing()
-add_test(NAME test_lsoda 
-    COMMAND $<TARGET_FILE:test_lsoda> 
+add_test(NAME test_lsoda
+    COMMAND $<TARGET_FILE:test_lsoda>
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_test(NAME test_benchmark 
+add_test(NAME test_benchmark
     COMMAND $<TARGET_FILE:benchmark_lsoda>
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
