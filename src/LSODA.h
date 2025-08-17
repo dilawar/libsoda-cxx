@@ -8,7 +8,6 @@
 
 using namespace std;
 
-/* --------------------------------------------------------------------------*/
 /**
  * @Synopsis  Type definition of LSODA ode system. See the file test_LSODA.cpp
  * for an example.
@@ -20,7 +19,6 @@ using namespace std;
  *
  * @Returns void
  */
-/* ----------------------------------------------------------------------------*/
 typedef void (*LSODA_ODE_SYSTEM_TYPE)(double t, double* y, double* dydt, void*);
 
 class LSODA {
@@ -62,7 +60,6 @@ public:
     void stoda(const size_t neq, vector<double>& y, LSODA_ODE_SYSTEM_TYPE f,
         void* _data);
 
-    // We call this function in VoxelPools::
     void lsoda_update(
         LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double>& y,
         std::vector<double>& yout, double* t, const double tout, int* istate,
@@ -96,9 +93,6 @@ private:
     size_t ml, mu, imxer;
     double sqrteta;
 
-    // NOTE: initialize in default constructor. Older compiler e.g. 4.8.4 would
-    // produce error if these are initialized here. With newer compiler,
-    // initialization can be done here.
     array<size_t, 3> mord;
     array<double, 13> sm1;
 
