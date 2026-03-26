@@ -84,7 +84,7 @@ auto test_github_system(void)
     return dt;
 }
 
-auto test_scipy_sys(void)
+auto test_scipy_sys(void) -> long
 {
     // cout << "Running test scipy sys" << endl;
     double t, tout;
@@ -117,7 +117,7 @@ auto test_scipy_sys(void)
     return dt;
 }
 
-auto test_fex(void)
+auto test_fex(void) -> long
 {
     // cout << "Running test fex." << endl;
     int neq = 3;
@@ -182,7 +182,7 @@ auto test_fex(void)
 
 int run_serial()
 {
-    vector<double> t1s, t2s, t3s;
+    vector<size_t> t1s, t2s, t3s;
     size_t N = 10000;
     cout << "Running " << N << " iterations. " << endl;
 
