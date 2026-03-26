@@ -80,7 +80,7 @@ double test_github_system(void)
     if (!(areEqual(-11.9400786, res[0], 1e-3, true)
             && areEqual(3.8608262, res[1], 1e-3, true)))
         cerr << "Failure!" << endl;
-    double dt = duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = duration_cast<chrono::microseconds>(end - begin).count();
     return dt;
 }
 
@@ -113,7 +113,7 @@ double test_scipy_sys(void)
         exit(0);
     }
 
-    double dt = duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = duration_cast<chrono::microseconds>(end - begin).count();
     return dt;
 }
 
@@ -157,8 +157,7 @@ double test_fex(void)
     }
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     // cout << "|| Time taken (us)= " << dt << endl;
 
     vector<double> expected = { 0.985172, 3.3864e-05, 0.0147939, 0.905514,
@@ -206,8 +205,7 @@ int run_serial()
          << " us per loop." << endl;
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     cout << "Total time taken " << dt / N << " us. (per loop)" << endl;
 
     return 0;
@@ -231,8 +229,7 @@ int run_multithreaded()
     }
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     cout << "Total time taken " << dt / N << " us (per loop)." << endl;
     return 0;
 }

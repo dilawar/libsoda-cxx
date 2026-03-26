@@ -4,9 +4,14 @@ project(libsoda-cxx VERSION 0.1.2)
 # compiler
 set(CMAKE_CXX_STANDARD 11)
 
+
+#
+# Setup clang-tidy for this project
+#
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" "--checks=-*,modernize-*,cppcoreguidelines-*")
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" "--checks=-*,cppcoreguidelines-*")
+    set(CMAKE_CXX_TIDY_EXPORT_FIXES_DIR "${CMAKE_BINARY_DIR}/__clang-tidy-fixes")
 else()
     message(WARNING "clang-tidy not found, continuing without linting.")
 endif()
