@@ -42,11 +42,11 @@ static void system_github_issue_10(
 {
     (void)data;
 
-    ydot[0] = 9 * y[0] + 24 * y[1] + 5 * cos(t) - (1 / 3) * sin(t);
-    ydot[1] = -24 * y[0] - 51 * y[1] - 95 * cos(t) + (1 / 3) * sin(t);
+    ydot[0] = 9 * y[0] + 24 * y[1] + 5 * cos(t) - (1.0 / 3.0) * sin(t);
+    ydot[1] = -24 * y[0] - 51 * y[1] - 95 * cos(t) + (1.0 / 3.0) * sin(t);
 }
 
-double test_github_system(void)
+auto test_github_system(void)
 {
     // cout << "Running test given
     // https://github.com/sdwfrost/liblsoda/issues/10" << endl;
@@ -84,7 +84,7 @@ double test_github_system(void)
     return dt;
 }
 
-double test_scipy_sys(void)
+auto test_scipy_sys(void)
 {
     // cout << "Running test scipy sys" << endl;
     double t, tout;
@@ -117,7 +117,7 @@ double test_scipy_sys(void)
     return dt;
 }
 
-double test_fex(void)
+auto test_fex(void)
 {
     // cout << "Running test fex." << endl;
     int neq = 3;
@@ -129,7 +129,7 @@ double test_fex(void)
     int istate = 1;
 
     LSODA lsoda;
-    setprecision(12);
+    auto _ = setprecision(12);
 
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
@@ -189,9 +189,9 @@ int run_serial()
     // Launch all three tests in parallel.
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
     for (size_t i = 0; i < N; i++) {
-        double t1 = test_scipy_sys();
-        double t2 = test_fex();
-        double t3 = test_github_system();
+        auto t1 = test_scipy_sys();
+        auto t2 = test_fex();
+        auto t3 = test_github_system();
         t1s.push_back(t1);
         t2s.push_back(t2);
         t3s.push_back(t3);

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(libsoda-cxx VERSION 0.1.2)
 
 # compiler
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 
 #
