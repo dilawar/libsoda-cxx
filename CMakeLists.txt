@@ -4,6 +4,13 @@ project(libsoda-cxx VERSION 0.1.2)
 # compiler
 set(CMAKE_CXX_STANDARD 11)
 
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" "--checks=-*,modernize-*,cppcoreguidelines-*")
+else()
+    message(WARNING "clang-tidy not found, continuing without linting.")
+endif()
+
 if(MSVC)
     add_compile_options(/W3)
 else()
