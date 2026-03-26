@@ -129,7 +129,6 @@ auto test_fex(void) -> long
     int istate = 1;
 
     LSODA lsoda;
-    auto _ = setprecision(12);
 
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
