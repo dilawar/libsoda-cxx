@@ -2,7 +2,19 @@ cmake_minimum_required(VERSION 3.12)
 project(libsoda-cxx VERSION 0.1.2)
 
 # compiler
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+
+#
+# Setup clang-tidy for this project
+#
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" "--checks=-*,cppcoreguidelines-*")
+    set(CMAKE_CXX_CLANG_TIDY_EXPORT_FIXES_DIR "${CMAKE_BINARY_DIR}/__clang-tidy-fixes")
+else()
+    message(WARNING "clang-tidy not found, continuing without linting.")
+endif()
 
 if(MSVC)
     add_compile_options(/W3)

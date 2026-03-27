@@ -2,7 +2,7 @@
  * HISTORY:
  *
  * This is a CXX version of the LSODA library for integration into MOOSE
- somulator.
+ simulator.
  *
  * The original was aquired from
  * http://www.ccl.net/cca/software/SOURCES/C/kinetics2/index.shtml and modified
@@ -55,8 +55,7 @@ bool LSODA::abs_compare(double a, double b)
 size_t LSODA::idamax1(
     const vector<double>& dx, const size_t n, const size_t offset = 0)
 {
-
-    size_t v = 0, vmax = 0;
+    double v = 0, vmax = 0;
     size_t idmax = 1;
     for (size_t i = 1; i <= n; i++) {
         v = abs(dx[i + offset]);
@@ -67,14 +66,15 @@ size_t LSODA::idamax1(
     }
     return idmax;
 
-    // Following failed with seg-fault. Probably issue with STL.
+    // Following failed with seg-fault. Probably issue with STL?
     // return std::max_element( dx.begin()+1+offset, dx.begin()+1+n,
     // LSODA::abs_compare) - dx.begin() - offset;
 }
 
-/* Purpose : scalar vector multiplication
-   dx = da * dx
-*/
+/*
+ * Purpose : scalar vector multiplication
+ * dx = da * dx
+ */
 void LSODA::dscal1(const double da, vector<double>& dx, const size_t n,
     const size_t offset = 0)
 {
@@ -296,13 +296,13 @@ void LSODA::lsoda(LSODA_ODE_SYSTEM_TYPE f, const size_t neq, vector<double>& y,
         // fprintf(stderr, "[lsoda] illegal istate = %d\n", *istate);
         cerr << "[lsoda] illegal istate = " << *istate << endl;
         terminate(istate);
-        throw runtime_error( "LSODA failed to compute." );
+        throw runtime_error("LSODA failed to compute.");
         return;
     }
     if (itask < 1 || itask > 5) {
         fprintf(stderr, "[lsoda] illegal itask = %d\n", itask);
         terminate(istate);
-        throw runtime_error( "LSODA failed to compute." );
+        throw runtime_error("LSODA failed to compute.");
         return;
     }
     if (init == 0 && (*istate == 2 || *istate == 3)) {

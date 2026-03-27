@@ -42,11 +42,11 @@ static void system_github_issue_10(
 {
     (void)data;
 
-    ydot[0] = 9 * y[0] + 24 * y[1] + 5 * cos(t) - (1 / 3) * sin(t);
-    ydot[1] = -24 * y[0] - 51 * y[1] - 95 * cos(t) + (1 / 3) * sin(t);
+    ydot[0] = 9 * y[0] + 24 * y[1] + 5 * cos(t) - (1.0 / 3.0) * sin(t);
+    ydot[1] = -24 * y[0] - 51 * y[1] - 95 * cos(t) + (1.0 / 3.0) * sin(t);
 }
 
-double test_github_system(void)
+auto test_github_system(void)
 {
     // cout << "Running test given
     // https://github.com/sdwfrost/liblsoda/issues/10" << endl;
@@ -80,11 +80,11 @@ double test_github_system(void)
     if (!(areEqual(-11.9400786, res[0], 1e-3, true)
             && areEqual(3.8608262, res[1], 1e-3, true)))
         cerr << "Failure!" << endl;
-    double dt = duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = duration_cast<chrono::microseconds>(end - begin).count();
     return dt;
 }
 
-double test_scipy_sys(void)
+auto test_scipy_sys(void) -> long
 {
     // cout << "Running test scipy sys" << endl;
     double t, tout;
@@ -113,11 +113,11 @@ double test_scipy_sys(void)
         exit(0);
     }
 
-    double dt = duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = duration_cast<chrono::microseconds>(end - begin).count();
     return dt;
 }
 
-double test_fex(void)
+auto test_fex(void) -> long
 {
     // cout << "Running test fex." << endl;
     int neq = 3;
@@ -129,7 +129,6 @@ double test_fex(void)
     int istate = 1;
 
     LSODA lsoda;
-    setprecision(12);
 
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
@@ -157,8 +156,7 @@ double test_fex(void)
     }
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     // cout << "|| Time taken (us)= " << dt << endl;
 
     vector<double> expected = { 0.985172, 3.3864e-05, 0.0147939, 0.905514,
@@ -183,16 +181,16 @@ double test_fex(void)
 
 int run_serial()
 {
-    vector<double> t1s, t2s, t3s;
+    vector<size_t> t1s, t2s, t3s;
     size_t N = 10000;
     cout << "Running " << N << " iterations. " << endl;
 
     // Launch all three tests in parallel.
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
     for (size_t i = 0; i < N; i++) {
-        double t1 = test_scipy_sys();
-        double t2 = test_fex();
-        double t3 = test_github_system();
+        auto t1 = test_scipy_sys();
+        auto t2 = test_fex();
+        auto t3 = test_github_system();
         t1s.push_back(t1);
         t2s.push_back(t2);
         t3s.push_back(t3);
@@ -206,8 +204,7 @@ int run_serial()
          << " us per loop." << endl;
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     cout << "Total time taken " << dt / N << " us. (per loop)" << endl;
 
     return 0;
@@ -231,8 +228,7 @@ int run_multithreaded()
     }
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
-    double dt
-        = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+    auto dt = chrono::duration_cast<chrono::microseconds>(end - begin).count();
     cout << "Total time taken " << dt / N << " us (per loop)." << endl;
     return 0;
 }
