@@ -66,4 +66,32 @@ if(PROJECT_IS_TOP_LEVEL)
     add_test(NAME test_benchmark
         COMMAND $<TARGET_FILE:benchmark_lsoda>
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    # Integration test: install into a temp prefix then build+run a standalone
+    # consumer that uses find_package(lsoda) to verify the full install works.
+    set(_integ_prefix "${CMAKE_CURRENT_BINARY_DIR}/integ_install")
+    set(_integ_build  "${CMAKE_CURRENT_BINARY_DIR}/integ_build")
+
+    add_test(NAME integration_install
+        COMMAND ${CMAKE_COMMAND} --install ${CMAKE_BINARY_DIR}
+                --prefix "${_integ_prefix}")
+    add_test(NAME integration_configure
+        COMMAND ${CMAKE_COMMAND}
+                -S "${CMAKE_SOURCE_DIR}/tests/integration"
+                -B "${_integ_build}"
+                -DCMAKE_PREFIX_PATH=${_integ_prefix}
+                -DCMAKE_BUILD_TYPE=Release)
+    add_test(NAME integration_build
+        COMMAND ${CMAKE_COMMAND} --build "${_integ_build}" --config Release)
+    # Use ctest inside the consumer build directory so the executable path is
+    # resolved correctly on all platforms (including MSVC multi-config generators).
+    add_test(NAME integration_run
+        COMMAND ${CMAKE_CTEST_COMMAND}
+                --test-dir "${_integ_build}"
+                --build-config Release
+                --output-on-failure)
+
+    set_tests_properties(integration_configure PROPERTIES DEPENDS integration_install)
+    set_tests_properties(integration_build     PROPERTIES DEPENDS integration_configure)
+    set_tests_properties(integration_run       PROPERTIES DEPENDS integration_build)
 endif()
