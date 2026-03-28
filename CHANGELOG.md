@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### ✨ Features
+
+- CMake install/export support: `find_package(lsoda CONFIG)`, `FetchContent`, and `add_subdirectory` all work with the unified `lsoda::lsoda` target
+- Integration test: CTest step that installs the library and builds a standalone consumer via `find_package`
+
+### 🐛 Bug Fixes
+
+- Fixed inconsistent `#include` spelling between build-tree and install-tree consumers (`#include <lsoda/LSODA.h>` now works for all integration patterns)
+- Replaced `assert()` checks in tests with a `CHECK` macro that is active in Release builds (`assert` is a no-op when `NDEBUG` is defined)
+
+### 📚 Documentation
+
+- Updated README with usage example, build instructions, and all three CMake integration patterns
+- Added `CLAUDE.md` with build commands and architecture notes
+
+### 🧪 Tests
+
+- Added four ODE unit tests ported from SciPy's test suite: exponential decay, simple harmonic oscillator, coupled radioactive decay (Bateman equations), and rational ODE — each verified against an analytical solution
+
 ## [0.1.1] - 2025-06-05
 
 ### ⚙️ Miscellaneous Tasks
