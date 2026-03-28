@@ -5,6 +5,9 @@
 C++17 port of the LSODA ODE solver. LSODA automatically switches between
 Adams (non-stiff) and BDF (stiff) integration methods with adaptive step size.
 
+_The eariliest version was written by hand. Lately tests, cmake harness, and docs
+have been touched by Claude._
+
 ## Usage
 
 ```cpp
