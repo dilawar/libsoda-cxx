@@ -54,7 +54,7 @@ LSODA solver;
 solver.lsoda(f, neq, y, &t, tout, itol, rtol, atol, itask, &istate, iopt, jt, data);
 
 // Higher-level stepping interface
-solver.lsoda_update(f, neq, y, &t, tout, &istate, data, rtol, atol);
+solver.lsoda_update(f, neq, y, yout, &t, tout, &istate, data, rtol, atol);
 ```
 
 `istate` starts at 1; successful steps return 2; errors return negative values. Reset to 1 to restart integration.
@@ -67,12 +67,16 @@ Method selection is tracked by `meth_` (1=Adams, 2=BDF). The solver maintains co
 
 ## Tests
 
-Tests are in `tests/test_LSODA.cpp` with three ODE systems:
+Tests are in `tests/test_LSODA.cpp` and currently cover:
 - Chemical kinetics (`fex`) — 3 equations, stiff
 - Van der Pol oscillator (`system_scipy`) — 2 equations, mu=1e4
 - GitHub issue #10 system (`system_github_issue_10`) — stiff with trigonometric forcing
+- Exponential decay (`exponential_decay_rhs`) — 1 equation, analytical solution
+- Simple harmonic oscillator (`sho_rhs`) — 2 equations, analytical solution
+- Coupled decay chain (`coupled_decay_rhs`) — 3 equations, Bateman equations
+- Rational ODE (`rational_ode_rhs`) — 2 equations, analytical solution
 
-Assertions use `areEqual()` with default tolerance 1e-5.
+Assertions use the `CHECK` macro (throws `runtime_error`) which is active in both Debug and Release builds, unlike `assert()` which is disabled by `-DNDEBUG` in Release.
 
 ## CI
 

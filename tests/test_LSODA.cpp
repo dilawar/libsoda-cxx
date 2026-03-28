@@ -350,8 +350,10 @@ int main(int argc, const char* argv[])
 
     auto run = [](const char* name, auto fn) {
         auto begin = chrono::steady_clock::now();
-        fn();
+        int rc = fn();
         auto end = chrono::steady_clock::now();
+        if (rc != 0)
+            throw runtime_error(string(name) + " returned non-zero: " + to_string(rc));
         cout << "|| " << name << " time (us)= "
              << chrono::duration_cast<chrono::microseconds>(end - begin).count()
              << endl;
