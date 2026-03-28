@@ -1,7 +1,6 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <stdexcept>
@@ -10,6 +9,16 @@
 #include "../src/helper.h"
 
 using namespace std;
+
+// Always-on check that works in both Debug and Release builds.
+#define CHECK(cond)                                                     \
+    do {                                                                \
+        if (!(cond)) {                                                  \
+            cerr << "FAILED: " #cond " (" << __FILE__ << ":"           \
+                 << __LINE__ << ")" << endl;                            \
+            throw runtime_error("assertion failed: " #cond);           \
+        }                                                               \
+    } while (0)
 
 // Describe the system.
 static void fex(double t, double* y, double* ydot, void* data)
@@ -105,7 +114,7 @@ int test_exponential_decay()
     }
 
     double expected = exp(-1.0);
-    assert(areEqual(expected, yout[1], 1e-6));
+    CHECK(areEqual(expected, yout[1], 1e-6));
     return 0;
 }
 
@@ -134,8 +143,8 @@ int test_simple_harmonic_oscillator()
     double expected_y0 = cos(omega * tout) + 0.1 / omega * sin(omega * tout);
     double expected_y1 = -omega * sin(omega * tout) + 0.1 * cos(omega * tout);
 
-    assert(areEqual(expected_y0, yout[1], 1e-5));
-    assert(areEqual(expected_y1, yout[2], 1e-5));
+    CHECK(areEqual(expected_y0, yout[1], 1e-5));
+    CHECK(areEqual(expected_y1, yout[2], 1e-5));
     return 0;
 }
 
@@ -177,9 +186,9 @@ int test_coupled_decay()
         + lmbd1 * lmbd0 * z0_0 / d10
             * (1.0 / d20 * (e0 - e2) - 1.0 / d21 * (e1 - e2));
 
-    assert(areEqual(expected_z0, yout[1], 1e-6));
-    assert(areEqual(expected_z1, yout[2], 1e-6));
-    assert(areEqual(expected_z2, yout[3], 1e-6));
+    CHECK(areEqual(expected_z0, yout[1], 1e-6));
+    CHECK(areEqual(expected_z1, yout[2], 1e-6));
+    CHECK(areEqual(expected_z2, yout[3], 1e-6));
     return 0;
 }
 
@@ -207,8 +216,8 @@ int test_rational_ode()
     double expected_y0 = tout / (tout + 10.0);
     double expected_y1 = 10.0 * tout / ((tout + 10.0) * (tout + 10.0));
 
-    assert(areEqual(expected_y0, yout[1], 1e-5));
-    assert(areEqual(expected_y1, yout[2], 1e-5));
+    CHECK(areEqual(expected_y0, yout[1], 1e-5));
+    CHECK(areEqual(expected_y1, yout[2], 1e-5));
     return 0;
 }
 
@@ -240,8 +249,8 @@ int test_github_system(void)
     }
 
     cout << res[0] << ' ' << res[1] << endl;
-    assert(areEqual(-11.94045, res[0]));
-    assert(areEqual(3.8610102, res[1]));
+    CHECK(areEqual(-11.94045, res[0]));
+    CHECK(areEqual(3.8610102, res[1]));
 
     if (istate <= 0) {
         cerr << "error istate = " << istate << endl;
@@ -327,7 +336,7 @@ int test_fex(void)
         if (err > 1e-6) {
             cerr << "FAILED: Expected " << expected[i] << ". Got " << res[i]
                  << endl;
-            assert(false);
+            throw runtime_error("test_fex: result out of tolerance");
         }
     }
 
